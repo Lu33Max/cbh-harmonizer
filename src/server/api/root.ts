@@ -1,6 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { sampleRouter } from "./routers/samples";
-import { main } from "./controllers/addDataController";
+import { addDataController } from "./controllers/addDataController";
 
 /**
  * This is the primary router for your server.
@@ -9,7 +9,7 @@ import { main } from "./controllers/addDataController";
  */
 export const appRouter = createTRPCRouter({
   samples: sampleRouter,
-  main: sampleRouter,
+  addDataController: addDataController,
 });
 
 /*appRouter.query("main" ,{

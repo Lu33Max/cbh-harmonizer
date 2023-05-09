@@ -34,6 +34,8 @@ type Filter = {
 
 const Home: NextPage = () => {
 
+  const request = api.addDataController.upload.useMutation()
+
   const defaultFilter: Filter = {
     cbhMasterID: undefined, 
     cbhDonorID: undefined, 
@@ -92,6 +94,7 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex min-h-screen flex-col">
         Main
+        <button onClick = {() => request.mutate("joa")}> Upload </button>
 
         <div className="mx-4 my-5">
           <table className="w-full text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
