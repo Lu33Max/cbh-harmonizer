@@ -1,5 +1,6 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { sampleRouter } from "./routers/samples";
+import { main } from "./controllers/addDataController";
 
 /**
  * This is the primary router for your server.
@@ -8,7 +9,13 @@ import { sampleRouter } from "./routers/samples";
  */
 export const appRouter = createTRPCRouter({
   samples: sampleRouter,
+  main: sampleRouter,
 });
 
+/*appRouter.query("main" ,{
+  async resolve() {
+    return main();
+  }
+})*/
 // export type definition of API
 export type AppRouter = typeof appRouter;
