@@ -143,9 +143,9 @@ export const addDataController = createTRPCRouter ({
       const workbook = new Excel.Workbook();
       const content = await workbook.xlsx.readFile(filepath);
     
-      const worksheet = content.worksheets[1];
-      const rowStartIndex = 7;
-      const numberOfRows = worksheet?.rowCount ? - 6 : 0;
+      const worksheet = content.worksheets[0];
+      const rowStartIndex = 9;
+      const numberOfRows = worksheet?.rowCount ? worksheet.rowCount - 8 : 0;
     
       const rows = worksheet?.getRows(rowStartIndex, numberOfRows) ?? [];
     
@@ -207,10 +207,11 @@ export const addDataController = createTRPCRouter ({
           Informed_Consent: getCellValue(row,53),
         }
       });
-    return ctx.prisma.addDataController.createMany({data:samples})
+    return ctx.prisma.samples.createMany({data:samples})
+    
      
     
-      console.log(samples);
+      //console.log(samples);
     
   })
 })
