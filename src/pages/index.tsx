@@ -34,7 +34,7 @@ type Filter = {
 
 const Home: NextPage = () => {
 
-  const request = api.dataControler.upload.useMutation()
+  const request = api.dataController.upload.useMutation()
 
   const defaultFilter: Filter = {
     cbhMasterID: undefined, 

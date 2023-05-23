@@ -1,7 +1,7 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { sampleRouter } from "./routers/samples";
-const { addDataController } = require ("./routers/addDataController");
-import { saveMappingPresets } from "./routers/saveMappingPresetsController";
+import { addDataController } from "./routers/addDataController";
+//import { saveMappingPresets } from "./routers/saveMappingPresetsController";
 
 /**
  * This is the primary router for your server.
@@ -10,8 +10,8 @@ import { saveMappingPresets } from "./routers/saveMappingPresetsController";
  */
 export const appRouter = createTRPCRouter({
   samples: sampleRouter,
-  dataControler: addDataController,
-  saveMappingPresetsController: saveMappingPresets,
+  dataController: addDataController,
+  //saveMappingPresetsController: saveMappingPresets,
 });
 
 
