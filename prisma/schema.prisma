@@ -122,3 +122,76 @@ model Samples {
     Procurement_Type                        String?
     Informed_Consent                        String?
 }
+
+model SavedPresets {
+    id                                      String    @id @default(cuid())
+    Preset_Name                             String
+    CBH_Donor_ID                            Int?
+    CBH_Master_ID                           Int?
+    CBH_Sample_ID                           Int?
+    Price                                   Int?
+    Quantity                                Int?
+    Unit                                    Int?
+    Matrix                                  Int?
+    Storage_Temperature                     Int?
+    Freeze_Thaw_Cycles                      Int?
+    Sample_Condition                        Int?
+    Infectious_Disease_Test_Result          Int?
+    Gender                                  Int?
+    Age                                     Int?
+    Ethnicity                               Int?
+    BMI                                     Int?
+    Lab_Parameter                           Int?
+    Result_Interpretation                   Int?
+    Result_Raw                              Int?
+    Result_Numerical                        Int?
+    Result_Unit                             Int?
+    Cut_Off_Raw                             Int?
+    Cut_Off_Numerical                       Int?
+    Test_Method                             Int?
+    Test_System                             Int?
+    Test_System_Manufacturer                Int?
+    Result_Obtained_From                    Int?
+    Diagnosis                               Int?
+    Diagnosis_Remarks                       Int?
+    ICD_Code                                Int?
+    Pregnancy_Week                          Int?
+    Pregnancy_Trimester                     Int?
+    Medication                              Int?
+    Therapy                                 Int?
+    Histological_Diagnosis                  Int?
+    Organ                                   Int?
+    Disease_Presentation                    Int?
+    TNM_Class_T                             Int?
+    TNM_Class_N                             Int?
+    TNM_Class_M                             Int?
+    Tumour_Grade                            Int?
+    Tumour_Stage                            Int?
+    Viable_Cells__per_                      Int?
+    Necrotic_Cells__per_                    Int?
+    Tumour_Cells__per_                      Int?
+    Proliferation_Rate__Ki67_per_           Int?
+    Estrogen_Receptor                       Int?
+    Progesteron_Receptor                    Int?
+    HER_2_Receptor                          Int?
+    Other_Gene_Mutations                    Int?
+    Country_of_Collection                   Int?
+    Date_of_Collection                      Int?
+    Procurement_Type                        Int?
+    Informed_Consent                        Int?
+}
+
+model SampleIDMapping {
+    Input_Sample_ID                         String      @id
+    Mapped_Sample_ID                        String
+}
+
+model DonorIDMapping {
+    Input_Donor_ID                         String       @id
+    Mapped_Donor_ID                        String
+}
+
+model MasterIDMapping {
+    Input_Master_ID                         String      @id
+    Mapped_Master_ID                        String
+}

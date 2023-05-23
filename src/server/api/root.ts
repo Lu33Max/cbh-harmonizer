@@ -1,6 +1,7 @@
 import { createTRPCRouter } from "~/server/api/trpc";
 import { sampleRouter } from "./routers/samples";
-import { addDataController } from "./routers/addDataController";
+const { addDataController } = require ("./routers/addDataController");
+import { saveMappingPresets } from "./routers/saveMappingPresetsController";
 
 /**
  * This is the primary router for your server.
@@ -10,12 +11,9 @@ import { addDataController } from "./routers/addDataController";
 export const appRouter = createTRPCRouter({
   samples: sampleRouter,
   dataControler: addDataController,
+  saveMappingPresetsController: saveMappingPresets,
 });
 
-/*appRouter.query("main" ,{
-  async resolve() {
-    return main();
-  }
-})*/
+
 // export type definition of API
 export type AppRouter = typeof appRouter;
