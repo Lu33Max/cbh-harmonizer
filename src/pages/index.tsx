@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useState } from "react";
+import React, { useState } from "react";
 import { api } from "~/utils/api";
 import Excel from 'exceljs';
 import { type Samples } from "@prisma/client";
@@ -174,7 +174,6 @@ const Home: NextPage = () => {
        }
     })
   
-    console.log(objectsToCreate)
     setNewSamples(objectsToCreate)
   }
 
@@ -189,29 +188,9 @@ const Home: NextPage = () => {
       uploadSamples.push(newSamples.slice(i, i + size));
     }
 
-   /* newSamples.forEach((sample, i) => {
-      if(i < 100){
-        console.log(sample)
-      }
-      
-      upload.mutate(sample)
-
-      if(upload.isError){
-        errors.push(sample)
-      }
-    });*/
-
-    /*uploadSamples.forEach((samples, i) => {
+    uploadSamples.forEach((samples, i) => {
       setTimeout(() => uploadFunction(samples), i * 5000)
-    })*/
-    if(newSamples[300]){
-      try {
-        SampleSchema.parse(newSamples[300])
-        upload.mutate(newSamples[300])
-      } catch(error) {
-        console.log(error)
-      }
-    }
+    })
 
     setErrorSamples(errors)
     setRawSamples([])
