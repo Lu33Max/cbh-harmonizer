@@ -164,14 +164,30 @@ const Home: NextPage = () => {
 
   function onSubmit() {
     const errors: Samples[] = []
+    const uploadSamples: Samples[][] = []
+    const size = 200
 
-    newSamples.forEach(sample => {
+    // Weil ein zu großes Array die maximalen Beschränkungen für einen HTTP Body überschreitet, wird das große Array hier in kleinere Arrays unterteilt, die jeweils mit 1 Sekunfde Delay
+    // nacheinander ausgeführt werden, um so die Datenbank nicht zu überlasten
+    for (let i = 0; i < newSamples.length; i += size) {
+      uploadSamples.push(newSamples.slice(i, i + size));
+    }
+
+   /* newSamples.forEach((sample, i) => {
+      if(i < 100){
+        console.log(sample)
+      }
+      
       upload.mutate(sample)
 
       if(upload.isError){
         errors.push(sample)
       }
-    });
+    });*/
+
+    uploadSamples.forEach((samples, i) => {
+      setTimeout(() => uploadFunction(samples), i *1000)
+    })
 
     setErrorSamples(errors)
     setRawSamples([])
@@ -180,6 +196,20 @@ const Home: NextPage = () => {
     setInput(undefined)
 
     void refetchSamples()
+  }
+
+  function uploadFunction(uploadSamples: Samples[]){
+    const errors: Samples[] = []
+
+    uploadSamples.forEach((sample) => {      
+      upload.mutate(sample)
+
+      if(upload.isError){
+        errors.push(sample)
+      }
+    })
+
+    setErrorSamples([...errorSamples, ...errors])
   }
 
   return (
