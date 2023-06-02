@@ -66,18 +66,18 @@ model Samples {
     CBH_Donor_ID                            String?
     CBH_Master_ID                           String?
     CBH_Sample_ID                           String?
-    Price                                   Int?
+    Price                                   Float?
     Quantity                                Float?
     Unit                                    String?
     Matrix                                  String?
     Storage_Temperature                     String?
-    Freeze_Thaw_Cycles                      Int?
+    Freeze_Thaw_Cycles                      Float?
     Sample_Condition                        String?
     Infectious_Disease_Test_Result          String?
     Gender                                  String?
-    Age                                     Int?
+    Age                                     Float?
     Ethnicity                               String?
-    BMI                                     Int?
+    BMI                                     Float?
     Lab_Parameter                           String?
     Result_Interpretation                   String?
     Result_Raw                              String?
@@ -92,7 +92,7 @@ model Samples {
     Diagnosis                               String?
     Diagnosis_Remarks                       String?
     ICD_Code                                String?
-    Pregnancy_Week                          Int?
+    Pregnancy_Week                          Float?
     Pregnancy_Trimester                     String?
     Medication                              String?
     Therapy                                 String?
@@ -134,4 +134,10 @@ model MasterIDMapping {
     id                                      String  @id @default(cuid())
     Input_Master_ID                         String
     Mapped_Master_ID                        String
+}
+
+model SavedPresets {
+    id                                      String @id @default(cuid())
+    Preset_Name                             String
+    Preset                                  Int[]
 }

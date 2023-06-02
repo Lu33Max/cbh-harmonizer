@@ -1,6 +1,6 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { api } from "~/utils/api";
 import Excel from 'exceljs';
 import { type Samples } from "@prisma/client";
@@ -16,6 +16,13 @@ const Home: NextPage = () => {
   const { data: samples, refetch: refetchSamples } = api.samples.getMany.useQuery({ take: pagelength, skip: 0})
   const upload = api.samples.create.useMutation()
   const uploadMany = api.samples.createMany.useMutation()
+  const { data: sampleIDs, refetch: refetchSampleID } = api.sampleidmapping.getAll.useQuery()
+  const { data: donorIDs, refetch: refetchDonorID } = api.donoridmapping.getAll.useQuery()
+  const { data: masterIDs, refetch: refetchMasterID } = api.masteridmapping.getAll.useQuery()
+  const { data: currentDonorID, refetch: refetchCurrentDonorID } = api.samples.sortDonor.useQuery()
+  const { data: currentMasterID, refetch: refetchCurrentMasterID } = api.samples.sortMaster.useQuery()
+  const { data: currentSampleID, refetch: refetchCurrentSampleID } = api.samples.sortSample.useQuery()
+
 
   // File Reader
   const [input, setInput] = useState<File | undefined>(undefined)
@@ -25,6 +32,21 @@ const Home: NextPage = () => {
   const [newSamples, setNewSamples] = useState<Samples[]>([])
   const [errorSamples, setErrorSamples] = useState<Samples[]>([])
   const [mappings, setMappings] = useState<number[]>([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52])
+  const [donorNumber, setDonorNumber] = useState<number>(0)
+  const [masterNumber, setMasterNumber] = useState<number>(0)
+  const [sampleNumber, setSampleNumber] = useState<number>(0)
+
+  useEffect(() => {
+    setDonorNumber (Number(currentDonorID?.CBH_Donor_ID?.slice(4)))
+  }, [currentDonorID])
+
+  useEffect(() => {
+    setMasterNumber (Number(currentMasterID?.CBH_Master_ID?.slice(4)))
+  }, [currentMasterID])
+
+  useEffect(() => {
+    setSampleNumber (Number(currentSampleID?.CBH_Sample_ID?.slice(4)))
+  }, [currentSampleID])
 
   function readFile() {
     if(input !== undefined){
@@ -95,18 +117,59 @@ const Home: NextPage = () => {
     }
   }
 
+
+  function donorMapping (donorID: string | undefined): string {
+    if(donorID !== undefined){
+      return donorID;
+    }
+    else {
+      const newDonorID = "CBHD" + donorNumber
+      setDonorNumber (donorNumber + 1)
+      return newDonorID
+    }
+  }
+
+  function masterMapping (masterID: string | undefined): string {
+    if(masterID !== undefined){
+      return masterID;
+    }
+    else {
+      const newMasterID = "CBHD" + masterNumber
+      setMasterNumber (masterNumber + 1)
+      return newMasterID
+    }
+  }
+
+  function sampleMapping (sampleID: string | undefined): string {
+    if(sampleID !== undefined){
+      return sampleID;
+    }
+    else {
+      const newSampleID = "CBHD" + sampleNumber
+      setSampleNumber (sampleNumber + 1)
+      return newSampleID
+    }
+  }
+
+
   function mapColumns (): void {
     const objectsToCreate: Samples[] = [];
   
     rawSamples.forEach(sample => {
+
+      const donorID = donorIDs?.find(c => (mappings[0] !== undefined && sample[mappings[0]] !== "") ? c.Input_Donor_ID ===  sample[mappings[0]]?? null: false);
+      const masterID = masterIDs?.find(c => (mappings[1] !== undefined && sample[mappings[1]] !== "") ? c.Input_Master_ID ===  sample[mappings[1]]?? null: false);
+      const sampleID = sampleIDs?.find(c => (mappings[2] !== undefined && sample[mappings[2]] !== "") ? c.Input_Sample_ID ===  sample[mappings[2]]?? null: false);
+
+
     
       const dateValue = (mappings[50] !== undefined && sample[mappings[50]] !== "") ? new Date(String(sample[mappings[50]])) ?? null : null;
   
       const newObject = {
         id: cuid(),
-        CBH_Donor_ID: (mappings[0] !== undefined && sample[mappings[0]] !== "") ? sample[mappings[0]] ?? null : null,
-        CBH_Master_ID: (mappings[1] !== undefined && sample[mappings[1]] !== "") ? sample[mappings[1]] ?? null : null,
-        CBH_Sample_ID: (mappings[2] !== undefined && sample[mappings[2]] !== "") ? sample[mappings[2]] ?? null : null,
+        CBH_Donor_ID: donorMapping(donorID?.Mapped_Donor_ID),
+        CBH_Master_ID: masterMapping(masterID?.Mapped_Master_ID),
+        CBH_Sample_ID: sampleMapping(sampleID?.Mapped_Sample_ID),
         Price: (mappings[3] !== undefined && sample[mappings[3]] !== "") ? Number(sample[mappings[3]]) || null : null,
         Quantity: (mappings[4] !== undefined && sample[mappings[4]] !== "") ? Number(sample[mappings[4]]) || null : null,
         Unit: (mappings[5] !== undefined && sample[mappings[5]] !== "") ? sample[mappings[5]] ?? null : null,
