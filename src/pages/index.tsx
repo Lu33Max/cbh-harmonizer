@@ -15,6 +15,7 @@ const Home: NextPage = () => {
   // API Requests
   const { data: samples, refetch: refetchSamples } = api.samples.getMany.useQuery({ take: pagelength, skip: 0})
   const upload = api.samples.create.useMutation()
+  const uploadMany = api.samples.createMany.useMutation()
 
   // File Reader
   const [input, setInput] = useState<File | undefined>(undefined)
@@ -101,30 +102,30 @@ const Home: NextPage = () => {
     
       const dateValue = (mappings[50] !== undefined && sample[mappings[50]] !== "") ? new Date(String(sample[mappings[50]])) ?? null : null;
   
-      objectsToCreate.push ({
+      const newObject = {
         id: cuid(),
         CBH_Donor_ID: (mappings[0] !== undefined && sample[mappings[0]] !== "") ? sample[mappings[0]] ?? null : null,
         CBH_Master_ID: (mappings[1] !== undefined && sample[mappings[1]] !== "") ? sample[mappings[1]] ?? null : null,
         CBH_Sample_ID: (mappings[2] !== undefined && sample[mappings[2]] !== "") ? sample[mappings[2]] ?? null : null,
-        Price: (mappings[3] !== undefined && sample[mappings[3]] !== "") ? Number(sample[mappings[3]]) ?? null : null,
-        Quantity: (mappings[4] !== undefined && sample[mappings[4]] !== "") ? Number(sample[mappings[4]]) ?? null : null,
+        Price: (mappings[3] !== undefined && sample[mappings[3]] !== "") ? Number(sample[mappings[3]]) || null : null,
+        Quantity: (mappings[4] !== undefined && sample[mappings[4]] !== "") ? Number(sample[mappings[4]]) || null : null,
         Unit: (mappings[5] !== undefined && sample[mappings[5]] !== "") ? sample[mappings[5]] ?? null : null,
         Matrix: (mappings[6] !== undefined && sample[mappings[6]] !== "") ? sample[mappings[6]] ?? null : null,
         Storage_Temperature: (mappings[7] !== undefined && sample[mappings[7]] !== "") ? sample[mappings[7]] ?? null : null,
-        Freeze_Thaw_Cycles: (mappings[8] !== undefined && sample[mappings[8]] !== "") ? Number(sample[mappings[8]]) ?? null : null,    
+        Freeze_Thaw_Cycles: (mappings[8] !== undefined && sample[mappings[8]] !== "") ? Number(sample[mappings[8]]) || null : null,    
         Sample_Condition: (mappings[9] !== undefined && sample[mappings[9]] !== "") ? sample[mappings[9]] ?? null : null,       
         Infectious_Disease_Test_Result: (mappings[10] !== undefined && sample[mappings[10]] !== "") ? sample[mappings[10]] ?? null : null,       
         Gender: (mappings[11] !== undefined && sample[mappings[11]] !== "") ? sample[mappings[11]] ?? null : null,       
-        Age: (mappings[12] !== undefined && sample[mappings[12]] !== "") ? Number(sample[mappings[12]]) ?? null : null,       
+        Age: (mappings[12] !== undefined && sample[mappings[12]] !== "") ? Number(sample[mappings[12]]) || null : null,       
         Ethnicity: (mappings[13] !== undefined && sample[mappings[13]] !== "") ? sample[mappings[13]] ?? null : null,       
-        BMI: (mappings[14] !== undefined && sample[mappings[14]] !== "") ? Number(sample[mappings[14]]) ?? null : null,        
+        BMI: (mappings[14] !== undefined && sample[mappings[14]] !== "") ? Number(sample[mappings[14]]) || null : null,        
         Lab_Parameter: (mappings[15] !== undefined && sample[mappings[15]] !== "") ? sample[mappings[15]] ?? null : null, 
         Result_Interpretation: (mappings[16] !== undefined && sample[mappings[16]] !== "") ? sample[mappings[16]] ?? null : null,       
         Result_Raw: (mappings[17] !== undefined && sample[mappings[17]] !== "") ? sample[mappings[17]] ?? null : null,        
-        Result_Numerical: (mappings[18] !== undefined && sample[mappings[18]] !== "") ? Number(sample[mappings[18]]) ?? null : null,        
+        Result_Numerical: (mappings[18] !== undefined && sample[mappings[18]] !== "") ? Number(sample[mappings[18]]) || null : null,        
         Result_Unit: (mappings[19] !== undefined && sample[mappings[19]] !== "") ? sample[mappings[19]] ?? null : null,       
         Cut_Off_Raw: (mappings[20] !== undefined && sample[mappings[20]] !== "") ? sample[mappings[20]] ?? null : null,       
-        Cut_Off_Numerical: (mappings[21] !== undefined && sample[mappings[21]] !== "") ? Number(sample[mappings[21]]) ?? null : null,       
+        Cut_Off_Numerical: (mappings[21] !== undefined && sample[mappings[21]] !== "") ? Number(sample[mappings[21]]) || null : null,       
         Test_Method: (mappings[22] !== undefined && sample[mappings[22]] !== "") ? sample[mappings[22]] ?? null : null,        
         Test_System: (mappings[23] !== undefined && sample[mappings[23]] !== "") ? sample[mappings[23]] ?? null : null,        
         Test_System_Manufacturer: (mappings[24] !== undefined && sample[mappings[24]] !== "") ? sample[mappings[24]] ?? null : null,        
@@ -132,7 +133,7 @@ const Home: NextPage = () => {
         Diagnosis: (mappings[26] !== undefined && sample[mappings[26]] !== "") ? sample[mappings[26]] ?? null : null,        
         Diagnosis_Remarks: (mappings[27] !== undefined && sample[mappings[27]] !== "") ? sample[mappings[27]] ?? null : null,        
         ICD_Code: (mappings[28] !== undefined && sample[mappings[28]] !== "") ? sample[mappings[28]] ?? null : null,        
-        Pregnancy_Week: (mappings[29] !== undefined && sample[mappings[29]] !== "") ? Number(sample[mappings[29]]) ?? null : null,        
+        Pregnancy_Week: (mappings[29] !== undefined && sample[mappings[29]] !== "") ? Number(sample[mappings[29]]) || null : null,        
         Pregnancy_Trimester: (mappings[30] !== undefined && sample[mappings[30]] !== "") ? sample[mappings[30]] ?? null : null,        
         Medication: (mappings[31] !== undefined && sample[mappings[31]] !== "") ? sample[mappings[31]] ?? null : null,        
         Therapy: (mappings[32] !== undefined && sample[mappings[32]] !== "") ? sample[mappings[32]] ?? null : null,       
@@ -156,9 +157,24 @@ const Home: NextPage = () => {
         Date_of_Collection: dateValue,       
         Procurement_Type: (mappings[51] !== undefined && sample[mappings[51]] !== "") ? sample[mappings[51]] ?? null : null,
         Informed_Consent: (mappings[52] !== undefined && sample[mappings[52]] !== "") ? sample[mappings[52]] ?? null : null,
-      }) 
+      }
+       try{
+        SampleSchema.parse(newObject)
+        objectsToCreate.push(newObject)
+       } catch (error) {
+        newObject.Date_of_Collection = null
+
+        try {
+          SampleSchema.parse(newObject)
+          objectsToCreate.push(newObject)
+        } catch(error) {
+          errorSamples.push(newObject)
+          console.error(error)
+        }
+       }
     })
   
+    console.log(objectsToCreate)
     setNewSamples(objectsToCreate)
   }
 
@@ -185,9 +201,17 @@ const Home: NextPage = () => {
       }
     });*/
 
-    uploadSamples.forEach((samples, i) => {
-      setTimeout(() => uploadFunction(samples), i *1000)
-    })
+    /*uploadSamples.forEach((samples, i) => {
+      setTimeout(() => uploadFunction(samples), i * 5000)
+    })*/
+    if(newSamples[300]){
+      try {
+        SampleSchema.parse(newSamples[300])
+        upload.mutate(newSamples[300])
+      } catch(error) {
+        console.log(error)
+      }
+    }
 
     setErrorSamples(errors)
     setRawSamples([])
@@ -208,6 +232,7 @@ const Home: NextPage = () => {
         errors.push(sample)
       }
     })
+    //uploadMany.mutate(uploadSamples)
 
     setErrorSamples([...errorSamples, ...errors])
   }
@@ -256,9 +281,9 @@ const Home: NextPage = () => {
         )}
 
         {errorSamples.length > 0 && (
-          <>
+          <div className="overflow-x-auto">
             {JSON.stringify(errorSamples)}
-          </>
+          </div>
         )}
 
         <div className="mx-4 my-5">
