@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
-import { SampleSchema } from "~/common/types";
+import { SampleSchema } from "~/common/database/samples";
 
 export const sampleRouter = createTRPCRouter({
 

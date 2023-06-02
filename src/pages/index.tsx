@@ -5,7 +5,7 @@ import { api } from "~/utils/api";
 import Excel from 'exceljs';
 import { type Samples } from "@prisma/client";
 import cuid from "cuid";
-import { SampleSchema } from "~/common/types";
+import { SampleSchema } from "~/common/database/samples";
 
 const Home: NextPage = () => {
   // General Table
@@ -168,8 +168,6 @@ const Home: NextPage = () => {
     newSamples.forEach(sample => {
       upload.mutate(sample)
 
-      console.log(sample)
-
       if(upload.isError){
         errors.push(sample)
       }
@@ -179,6 +177,9 @@ const Home: NextPage = () => {
     setRawSamples([])
     setHeader([])
     setNewSamples([])
+    setInput(undefined)
+
+    void refetchSamples()
   }
 
   return (
@@ -221,12 +222,12 @@ const Home: NextPage = () => {
                 <button onClick={onSubmit}>Submit</button>
               </>
             )}
+          </>
+        )}
 
-            {errorSamples.length > 0 && (
-              <>
-                {JSON.stringify(errorSamples)}
-              </>
-            )}
+        {errorSamples.length > 0 && (
+          <>
+            {JSON.stringify(errorSamples)}
           </>
         )}
 
