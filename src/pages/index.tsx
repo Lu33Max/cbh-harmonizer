@@ -7,6 +7,13 @@ import { type Samples } from "@prisma/client";
 import cuid from "cuid";
 import { SampleSchema } from "~/common/database/samples";
 
+import React from 'react';
+import Labels from '~/components/Lables';
+
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useDrop } from 'react-dnd';
+
 const Home: NextPage = () => {
   // General Table
   const [page,] = useState<number>(1)
@@ -25,8 +32,6 @@ const Home: NextPage = () => {
   const [newSamples, setNewSamples] = useState<Samples[]>([])
   const [errorSamples, setErrorSamples] = useState<Samples[]>([])
   const [mappings, setMappings] = useState<number[]>([0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52])
-
-  const headers = ['Show', 'col2', 'col3', 'col4', 'col5', 'col6', 'col7', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8','col8','col8','col8','col8','col8','col8','col8','col8','col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8', 'col8'];
 
   function readFile() {
     if(input !== undefined){
@@ -258,11 +263,6 @@ const Home: NextPage = () => {
         {input !== undefined && (
           <>
             <div className="max-w-[100vw] flex flex-row flex-wrap">
-              {header.map((cell, i) => {
-                return (
-                  <label key={i} className="px-2">{cell}</label>
-                )
-              })}
               {/*Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
                 return(
                   <label key={i}>{name}</label>
@@ -289,65 +289,65 @@ const Home: NextPage = () => {
         )}
 
         <div className="mx-4 my-5">
-          <DndProvider backend={HTML5Backend}> <Labels labels={headers}/> </DndProvider>
+          <DndProvider backend={HTML5Backend}> <Labels labels={header}/> </DndProvider>
           </div>
           <div className="mx-4 my-5 overflow-x-auto">
-            <table className="table-auto w-full columns-200 table-auto text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
+            <table className="w-full columns-200 table-fixed text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
               <thead>
-              <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight">
-                  <th className="py-2 font-extralight border-dotted rounded-l-xl border-black border-r-2">CBH_Donor_ID</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">CBH_Master_ID</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">CBH_Sample_ID</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Price</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Quantity</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Unit</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Matrix</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Storage_Temperature</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Freeze_Thaw_Cycles</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Sample_Condition</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Infectious_Disease_Test_Result</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Gender</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Age</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Ethnicity</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">BMI</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Lab_Parameter</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Result_Interpretation</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Result_Raw</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Result_Numerical</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Result_Unit</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Cut_Off_Raw</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Cut_Off_Numerical</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Test_Method</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Test_System</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Test_System_Manufacturer</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Result_Obtained_From</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Diagnosis</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Diagnosis_Remarks</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">ICD_Code</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Pregnancy_Week</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Pregnancy_Trimester</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Medication</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Therapy</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Histological_Diagnosis</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Organ</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Disease_Presentation</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">TNM_Class_T</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">TNM_Class_N</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">TNM_Class_M</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Tumour_Grade</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Tumour_Stage</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Viable_Cells__per_</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Necrotic_Cells__per_</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Tumour_Cells__per_</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Proliferation_Rate__Ki67_per_</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Estrogen_Receptor</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Progesteron_Receptor</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">HER_2_Receptor</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Other_Gene_Mutations</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Country_of_Collection</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Date_of_Collection</th>
-                  <th className="py-2 font-extralight border-dotted border-black border-r-2">Procurement_Type</th>
-                  <th className="py-2 font-extralight rounded-r-xl">Informed_Consent</th>
+              <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight ">
+                  <th className="py-2 font-extralight border-dotted rounded-l-xl border-black border-r-2 w-[200px]">CBH_Donor_ID</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">CBH_Master_ID</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">CBH_Sample_ID</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Price</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Quantity</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Unit</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Matrix</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Storage_Temperature</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Freeze_Thaw_Cycles</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Sample_Condition</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Infectious_Disease_Test_Result</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Gender</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Age</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Ethnicity</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">BMI</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Lab_Parameter</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Interpretation</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Raw</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Numerical</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Unit</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Cut_Off_Raw</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Cut_Off_Numerical</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Test_Method</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Test_System</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Test_System_Manufacturer</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Obtained_From</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Diagnosis</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Diagnosis_Remarks</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">ICD_Code</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Pregnancy_Week</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Pregnancy_Trimester</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Medication</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Therapy</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Histological_Diagnosis</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Organ</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Disease_Presentation</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">TNM_Class_T</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">TNM_Class_N</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">TNM_Class_M</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Tumour_Grade</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Tumour_Stage</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Viable_Cells__per_</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Necrotic_Cells__per_</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Tumour_Cells__per_</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Proliferation_Rate__Ki67_per_</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Estrogen_Receptor</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Progesteron_Receptor</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">HER_2_Receptor</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Other_Gene_Mutations</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Country_of_Collection</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Date_of_Collection</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Procurement_Type</th>
+                  <th className="py-2 font-extralight rounded-r-xl w-[200px]">Informed_Consent</th>
                 </tr>
               </thead>
               <tbody>
