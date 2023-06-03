@@ -7,17 +7,10 @@ import { type Samples } from "@prisma/client";
 import cuid from "cuid";
 import { SampleSchema } from "~/common/database/samples";
 
-import { useDrag } from 'react-dnd';
-
-import { DndProvider } from 'react-dnd';
-import { HTML5Backend } from 'react-dnd-html5-backend';
-import { useDrop } from 'react-dnd';
-
-
 const Home: NextPage = () => {
   // General Table
-  const [page,] = useState<number>(1)
   const [pagelength,] = useState<number>(100)
+  const [search, setSearch] = useState<string>("")
 
   // API Requests
   const { data: samples, refetch: refetchSamples } = api.samples.getMany.useQuery({ take: pagelength, skip: 0})
@@ -43,10 +36,6 @@ const Home: NextPage = () => {
   const [sampleNumber, setSampleNumber] = useState<number>(0)
 
   useEffect(() => {
-    console.log(Object.getOwnPropertyNames(SampleSchema.shape).length)
-  }, [mappings])
-
-  useEffect(() => {
     if (mappings.length < Object.getOwnPropertyNames(SampleSchema.shape).length - 1) {
       const tempArray = [] 
       for (let i = 0; i < Object.getOwnPropertyNames(SampleSchema.shape).length - 1; i ++) {
@@ -66,15 +55,15 @@ const Home: NextPage = () => {
   }, [input, refetchCurrentDonorID, refetchCurrentMasterID, refetchCurrentSampleID, refetchDonorID, refetchMasterID, refetchSampleID])
 
   useEffect(() => {
-    setDonorNumber(Number(currentDonorID?.CBH_Donor_ID?.slice(4)))
+    setDonorNumber(currentDonorID ? Number(currentDonorID?.CBH_Donor_ID?.slice(4)) + 1 : 1000000)
   }, [currentDonorID])
 
   useEffect(() => {
-    setMasterNumber(Number(currentMasterID?.CBH_Master_ID?.slice(4)))
+    setMasterNumber(currentMasterID ? Number(currentMasterID?.CBH_Master_ID?.slice(4)) + 1 : 1000000)
   }, [currentMasterID])
 
   useEffect(() => {
-    setSampleNumber(Number(currentSampleID?.CBH_Sample_ID?.slice(4)))
+    setSampleNumber(currentSampleID ? Number(currentSampleID?.CBH_Sample_ID?.slice(4)) + 1 : 1000000)
   }, [currentSampleID])
   
   function handleOnDrag(e: React.DragEvent, index: number) {
@@ -163,55 +152,75 @@ const Home: NextPage = () => {
     }
   }
 
-  function donorMapping (donorID: string | undefined): string {
+  function donorMapping (donorID: string | undefined, inputID: string | undefined): string {
     if(donorID !== undefined){
       return donorID;
     }
     else {
       const newDonorID = "CBHD" + donorNumber.toString()
       setDonorNumber (donorNumber + 1)
+
+      // Test, if the input had an ID assigned and only then create a new mapping
+      if(inputID !== undefined){
+        // Create new mapping
+      }
+
       return newDonorID
     }
   }
 
-  function masterMapping (masterID: string | undefined): string {
+  function masterMapping (masterID: string | undefined, inputID: string | undefined): string {
     if(masterID !== undefined){
       return masterID;
     }
     else {
       const newMasterID = "CBHD" + masterNumber.toString()
       setMasterNumber (masterNumber + 1)
+
+      // Test, if the input had an ID assigned and only then create a new mapping
+      if(inputID !== undefined){
+        // Create new mapping
+      }
+
       return newMasterID
     }
   }
 
-  function sampleMapping (sampleID: string | undefined): string {
+  function sampleMapping (sampleID: string | undefined, inputID: string | undefined): string {
     if(sampleID !== undefined){
       return sampleID;
     }
-    else {
+    else 
+    {
       const newSampleID = "CBHD" + sampleNumber.toString()
-      setSampleNumber (sampleNumber + 1)
+      setSampleNumber(sampleNumber + 1)
+
+      // Test, if the input had an ID assigned and only then create a new mapping
+      if(inputID !== undefined){
+        // Create new mapping
+      }
+
       return newSampleID
     }
   }
 
   function mapColumns (): void {
     const objectsToCreate: Samples[] = [];
+    console.log(rawSamples[rawSamples.length-1])
   
     rawSamples.forEach(sample => {
 
-      const donorID = donorIDs?.find(c => (mappings[0] !== undefined && sample[mappings[0]] !== "") ? c.Input_Donor_ID ===  sample[mappings[0]]?? null: false);
-      const masterID = masterIDs?.find(c => (mappings[1] !== undefined && sample[mappings[1]] !== "") ? c.Input_Master_ID ===  sample[mappings[1]]?? null: false);
-      const sampleID = sampleIDs?.find(c => (mappings[2] !== undefined && sample[mappings[2]] !== "") ? c.Input_Sample_ID ===  sample[mappings[2]]?? null: false);
+      const donorID = donorIDs?.find(c => (mappings[0] !== undefined && sample[mappings[0]] !== "") ? c.Input_Donor_ID ===  sample[mappings[0]] ?? null : false);
+      const masterID = masterIDs?.find(c => (mappings[1] !== undefined && sample[mappings[1]] !== "") ? c.Input_Master_ID ===  sample[mappings[1]] ?? null : false);
+      const sampleID = sampleIDs?.find(c => (mappings[2] !== undefined && sample[mappings[2]] !== "") ? c.Input_Sample_ID ===  sample[mappings[2]] ?? null : false);
 
       const dateValue = (mappings[50] !== undefined && sample[mappings[50]] !== "") ? new Date(String(sample[mappings[50]])) ?? null : null;
   
       const newObject = {
         id: cuid(),
-        CBH_Donor_ID: donorMapping(donorID?.Mapped_Donor_ID),
-        CBH_Master_ID: masterMapping(masterID?.Mapped_Master_ID),
-        CBH_Sample_ID: sampleMapping(sampleID?.Mapped_Sample_ID),
+        CBH_Donor_ID: donorMapping(donorID?.Mapped_Donor_ID, (mappings[0] !== undefined && sample[mappings[0]] !== "") ? sample[mappings[0]] : undefined),
+        CBH_Master_ID: masterMapping(masterID?.Mapped_Master_ID, (mappings[1] !== undefined && sample[mappings[1]] !== "") ? sample[mappings[1]] : undefined),
+        CBH_Sample_ID: sampleMapping(sampleID?.Mapped_Sample_ID, (mappings[2] !== undefined && sample[mappings[2]] !== "") ? sample[mappings[2]] : undefined),
         Price: (mappings[3] !== undefined && sample[mappings[3]] !== "") ? Number(sample[mappings[3]]) || null : null,
         Quantity: (mappings[4] !== undefined && sample[mappings[4]] !== "") ? Number(sample[mappings[4]]) || null : null,
         Unit: (mappings[5] !== undefined && sample[mappings[5]] !== "") ? sample[mappings[5]] ?? null : null,
@@ -263,10 +272,11 @@ const Home: NextPage = () => {
         Procurement_Type: (mappings[51] !== undefined && sample[mappings[51]] !== "") ? sample[mappings[51]] ?? null : null,
         Informed_Consent: (mappings[52] !== undefined && sample[mappings[52]] !== "") ? sample[mappings[52]] ?? null : null,
       }
-       try{
+
+      try {
         SampleSchema.parse(newObject)
         objectsToCreate.push(newObject)
-       } catch (error) {
+      } catch (error) {
         newObject.Date_of_Collection = null
 
         try {
@@ -276,14 +286,14 @@ const Home: NextPage = () => {
           errorSamples.push(newObject)
           console.error(error)
         }
-       }
+      }
     })
   
+    console.log(objectsToCreate.length)
     setNewSamples(objectsToCreate)
   }
 
   function onSubmit() {
-    const errors: Samples[] = []
     const uploadSamples: Samples[][] = []
     const size = 200
 
@@ -297,11 +307,11 @@ const Home: NextPage = () => {
       setTimeout(() => uploadFunction(samples), i * 5000)
     })
 
-    setErrorSamples(errors)
+    /*setErrorSamples(errors)
     setRawSamples([])
     setHeader([])
     setNewSamples([])
-    setInput(undefined)
+    setInput(undefined)*/
 
     void refetchSamples()
   }
@@ -323,47 +333,12 @@ const Home: NextPage = () => {
 
   function getColumnName(index: number) : string {
     const temp = mappings[index];
-    if (temp !=undefined) {
+    if (temp !== undefined) {
       return header[temp] ?? ""
     } else {
       return ""
     }
   }
-
-  interface LabelProps {
-    label: string;
-    index: number;
-  }
-  
-  /*const Label: React.FC<LabelProps> = ({ label, index }) => {
-    const [{ isDragging }, drag] = useDrag(() => ({
-      type: 'label',
-      item: { label },
-      collect: (monitor) => ({
-        isDragging: monitor.isDragging(),
-      }),
-    }));
-  
-    return (
-      <div onDragStart={(e) => handleOnDrag(e, index)} ref={drag} className={`label ${isDragging ? 'dragging' : ''} w-[350px] text-center text-2xl bg-gray-300 rounded-xl h-9 mr-2 mb-2`}>
-        {label}
-      </div>
-    );
-  };
-  
-  interface LabelsProps {
-    labels: string[];
-  }
-  
-  const Labels: React.FC<LabelsProps> = ({ labels }) => {
-    return (
-      <div className="labels flex flex-wrap">
-        {labels.map((label, index) => (
-          <Label key={index} label={label} index={index} />
-        ))}
-      </div>
-    );
-  };*/
 
   return (
     <>
@@ -401,12 +376,12 @@ const Home: NextPage = () => {
           </div>
         )}
 
-        {/* Drag and Drop Elements */}
-        <div className="mx-4 my-5">
-          {/*<Labels labels={header}/>*/}
+        <input value={search} onChange={(e) => setSearch(e.target.value)}></input>
 
+        {/* Drag and Drop Elements */}
+        <div className="flex flex-wrap flex-row mx-4 my-5 justify-center gap-2">
           {header.map((head, index) => (
-            <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)}>
+            <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)} className={` px-3 py-1 rounded-2xl ${(search !== "" && head.toLowerCase().includes(search)) ? "bg-[rgb(131,182,94)]" : "bg-gray-300"}`}>
               {head}
             </div>
           ))}
@@ -430,11 +405,11 @@ const Home: NextPage = () => {
             </thead>
             <tbody>
               <tr>
-                {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
+                {Object.getOwnPropertyNames(SampleSchema.shape).map((_, i) => {
                   if (i != 0) {
                     return (
                       <td key={i} className={`${i == 1 ? "rounded-l-full border-dotted border-black border-r-2 h-9" : i == Object.getOwnPropertyNames(SampleSchema.shape).length-1 ? "rounded-r-full" : "border-dotted border-black border-r-2 h-9" } py-2 px-3 bg-gray-300`}>
-                          <div className='w-full h-full' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
+                        <div className='w-full h-full' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
                       </td>
                     )
                   }
