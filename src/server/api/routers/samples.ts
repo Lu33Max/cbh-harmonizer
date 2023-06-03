@@ -75,4 +75,31 @@ export const sampleRouter = createTRPCRouter({
                 }
             })
         }),
+
+    sortDonor: publicProcedure
+    .query(async ({ ctx }) => {
+        return ctx.prisma.samples.findFirst({
+            orderBy: {
+                CBH_Donor_ID: "desc",
+            }
+        });
+    }),
+   
+    sortMaster: publicProcedure
+    .query(async ({ ctx }) => {
+        return ctx.prisma.samples.findFirst({
+            orderBy: {
+                CBH_Master_ID: "desc",
+            }
+        });
+    }),
+   
+    sortSample: publicProcedure
+    .query(async ({ ctx }) => {
+        return ctx.prisma.samples.findFirst({
+            orderBy: {
+                CBH_Sample_ID: "desc",
+            }
+        });
+    })
 })

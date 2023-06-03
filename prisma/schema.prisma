@@ -135,3 +135,9 @@ model MasterIDMapping {
     Input_Master_ID                         String
     Mapped_Master_ID                        String
 }
+
+model SavedPresets {
+    id                                      String @id @default(cuid())
+    Preset_Name                             String
+    Preset                                  Int[]
+}

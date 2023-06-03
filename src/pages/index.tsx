@@ -23,6 +23,12 @@ const Home: NextPage = () => {
   const { data: samples, refetch: refetchSamples } = api.samples.getMany.useQuery({ take: pagelength, skip: 0})
   const upload = api.samples.create.useMutation()
   const uploadMany = api.samples.createMany.useMutation()
+  const { data: sampleIDs, refetch: refetchSampleID } = api.sampleidmapping.getAll.useQuery()
+  const { data: donorIDs, refetch: refetchDonorID } = api.donoridmapping.getAll.useQuery()
+  const { data: masterIDs, refetch: refetchMasterID } = api.masteridmapping.getAll.useQuery()
+  const { data: currentDonorID, refetch: refetchCurrentDonorID } = api.samples.sortDonor.useQuery()
+  const { data: currentMasterID, refetch: refetchCurrentMasterID } = api.samples.sortMaster.useQuery()
+  const { data: currentSampleID, refetch: refetchCurrentSampleID } = api.samples.sortSample.useQuery()
 
   // File Reader
   const [input, setInput] = useState<File | undefined>(undefined)
@@ -32,33 +38,55 @@ const Home: NextPage = () => {
   const [newSamples, setNewSamples] = useState<Samples[]>([])
   const [errorSamples, setErrorSamples] = useState<Samples[]>([])
   const [mappings, setMappings] = useState<(number | undefined)[]>([])
+  const [donorNumber, setDonorNumber] = useState<number>(0)
+  const [masterNumber, setMasterNumber] = useState<number>(0)
+  const [sampleNumber, setSampleNumber] = useState<number>(0)
 
   useEffect(() => {
     console.log(Object.getOwnPropertyNames(SampleSchema.shape).length)
   }, [mappings])
 
   useEffect(() => {
-    if (mappings.length <= 53) {
-      let tempArray = [] 
-      for (let i = 0; i < Object.getOwnPropertyNames(SampleSchema.shape).length-1; i ++) {
+    if (mappings.length < Object.getOwnPropertyNames(SampleSchema.shape).length - 1) {
+      const tempArray = [] 
+      for (let i = 0; i < Object.getOwnPropertyNames(SampleSchema.shape).length - 1; i ++) {
         tempArray.push(undefined)
       }
       setMappings(tempArray)
     }
   }, [])
+
+  useEffect(() => {
+    void refetchCurrentDonorID()
+    void refetchCurrentMasterID()
+    void refetchCurrentSampleID()
+    void refetchDonorID()
+    void refetchMasterID()
+    void refetchSampleID()
+  }, [input, refetchCurrentDonorID, refetchCurrentMasterID, refetchCurrentSampleID, refetchDonorID, refetchMasterID, refetchSampleID])
+
+  useEffect(() => {
+    setDonorNumber(Number(currentDonorID?.CBH_Donor_ID?.slice(4)))
+  }, [currentDonorID])
+
+  useEffect(() => {
+    setMasterNumber(Number(currentMasterID?.CBH_Master_ID?.slice(4)))
+  }, [currentMasterID])
+
+  useEffect(() => {
+    setSampleNumber(Number(currentSampleID?.CBH_Sample_ID?.slice(4)))
+  }, [currentSampleID])
   
+  function handleOnDrag(e: React.DragEvent, index: number) {
+    e.dataTransfer.setData("index", index.toString());
+  }
+
   function handleOnDrop(e: React.DragEvent, targetIndex: number) {
-    const index = Number (e.dataTransfer.getData("index")) as number;
-    let tempMappings = [...mappings];
+    const index = Number(e.dataTransfer.getData("index"));
+    const tempMappings = [...mappings];
 
     tempMappings[targetIndex] = index
     setMappings(tempMappings)
-
-    console.table(mappings)
-  }
-
-  function handleOnDrag(e: React.DragEvent, index: number) {
-    e.dataTransfer.setData("index", index.toString());
   }
 
   function handleDragOver(e: React.DragEvent) {
@@ -135,18 +163,55 @@ const Home: NextPage = () => {
     }
   }
 
+  function donorMapping (donorID: string | undefined): string {
+    if(donorID !== undefined){
+      return donorID;
+    }
+    else {
+      const newDonorID = "CBHD" + donorNumber.toString()
+      setDonorNumber (donorNumber + 1)
+      return newDonorID
+    }
+  }
+
+  function masterMapping (masterID: string | undefined): string {
+    if(masterID !== undefined){
+      return masterID;
+    }
+    else {
+      const newMasterID = "CBHD" + masterNumber.toString()
+      setMasterNumber (masterNumber + 1)
+      return newMasterID
+    }
+  }
+
+  function sampleMapping (sampleID: string | undefined): string {
+    if(sampleID !== undefined){
+      return sampleID;
+    }
+    else {
+      const newSampleID = "CBHD" + sampleNumber.toString()
+      setSampleNumber (sampleNumber + 1)
+      return newSampleID
+    }
+  }
+
   function mapColumns (): void {
     const objectsToCreate: Samples[] = [];
   
     rawSamples.forEach(sample => {
-    
+
+      const donorID = donorIDs?.find(c => (mappings[0] !== undefined && sample[mappings[0]] !== "") ? c.Input_Donor_ID ===  sample[mappings[0]]?? null: false);
+      const masterID = masterIDs?.find(c => (mappings[1] !== undefined && sample[mappings[1]] !== "") ? c.Input_Master_ID ===  sample[mappings[1]]?? null: false);
+      const sampleID = sampleIDs?.find(c => (mappings[2] !== undefined && sample[mappings[2]] !== "") ? c.Input_Sample_ID ===  sample[mappings[2]]?? null: false);
+
       const dateValue = (mappings[50] !== undefined && sample[mappings[50]] !== "") ? new Date(String(sample[mappings[50]])) ?? null : null;
   
       const newObject = {
         id: cuid(),
-        CBH_Donor_ID: (mappings[0] !== undefined && sample[mappings[0]] !== "") ? sample[mappings[0]] ?? null : null,
-        CBH_Master_ID: (mappings[1] !== undefined && sample[mappings[1]] !== "") ? sample[mappings[1]] ?? null : null,
-        CBH_Sample_ID: (mappings[2] !== undefined && sample[mappings[2]] !== "") ? sample[mappings[2]] ?? null : null,
+        CBH_Donor_ID: donorMapping(donorID?.Mapped_Donor_ID),
+        CBH_Master_ID: masterMapping(masterID?.Mapped_Master_ID),
+        CBH_Sample_ID: sampleMapping(sampleID?.Mapped_Sample_ID),
         Price: (mappings[3] !== undefined && sample[mappings[3]] !== "") ? Number(sample[mappings[3]]) || null : null,
         Quantity: (mappings[4] !== undefined && sample[mappings[4]] !== "") ? Number(sample[mappings[4]]) || null : null,
         Unit: (mappings[5] !== undefined && sample[mappings[5]] !== "") ? sample[mappings[5]] ?? null : null,
@@ -257,7 +322,7 @@ const Home: NextPage = () => {
   }
 
   function getColumnName(index: number) : string {
-    let temp = mappings[index];
+    const temp = mappings[index];
     if (temp !=undefined) {
       return header[temp] ?? ""
     } else {
@@ -270,7 +335,7 @@ const Home: NextPage = () => {
     index: number;
   }
   
-  const Label: React.FC<LabelProps> = ({ label, index }) => {
+  /*const Label: React.FC<LabelProps> = ({ label, index }) => {
     const [{ isDragging }, drag] = useDrag(() => ({
       type: 'label',
       item: { label },
@@ -298,7 +363,7 @@ const Home: NextPage = () => {
         ))}
       </div>
     );
-  };
+  };*/
 
   return (
     <>
@@ -336,39 +401,48 @@ const Home: NextPage = () => {
           </div>
         )}
 
+        {/* Drag and Drop Elements */}
         <div className="mx-4 my-5">
-          <Labels labels={header}/>
-          </div>
-          <div className="mx-4 my-5 overflow-x-auto">
-            <table className="w-full columns-200 table-fixed text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
-              <thead>
-                <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight">
-                  {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
-                    if (i != 0) {
-                      return (
-                        <th key={i} className={`${i == 1 ? "rounded-l-full border-dotted border-black border-r-2 h-9" : i == Object.getOwnPropertyNames(SampleSchema.shape).length-1 ? "rounded-r-full" : "border-dotted border-black border-r-2 h-9" } py-2 font-extralight w-[350px]`}>
-                          {name}
-                        </th>
-                      )
-                    }
-                  })}
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
-                    if (i != 0) {
-                      return (
-                        <td key={i} className={`${i == 1 ? "rounded-l-full border-dotted border-black border-r-2 h-9" : i == Object.getOwnPropertyNames(SampleSchema.shape).length-1 ? "rounded-r-full" : "border-dotted border-black border-r-2 h-9" } py-2 px-3 bg-gray-300`}>
-                            <div className='w-full h-full' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
-                        </td>
-                      )
-                    }
-                  })}
-                </tr>
-              </tbody>
-            </table>
-          </div>
+          {/*<Labels labels={header}/>*/}
+
+          {header.map((head, index) => (
+            <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)}>
+              {head}
+            </div>
+          ))}
+        </div>
+
+        {/* Mappings Table */}
+        <div className="mx-4 my-5 overflow-x-auto">
+          <table className="w-full columns-200 table-fixed text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
+            <thead>
+              <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight">
+                {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
+                  if (i != 0) {
+                    return (
+                      <th key={i} className={`${i == 1 ? "rounded-l-full border-dotted border-black border-r-2 h-9" : i == Object.getOwnPropertyNames(SampleSchema.shape).length-1 ? "rounded-r-full" : "border-dotted border-black border-r-2 h-9" } py-2 font-extralight w-[350px]`}>
+                        {name}
+                      </th>
+                    )
+                  }
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
+                  if (i != 0) {
+                    return (
+                      <td key={i} className={`${i == 1 ? "rounded-l-full border-dotted border-black border-r-2 h-9" : i == Object.getOwnPropertyNames(SampleSchema.shape).length-1 ? "rounded-r-full" : "border-dotted border-black border-r-2 h-9" } py-2 px-3 bg-gray-300`}>
+                          <div className='w-full h-full' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
+                      </td>
+                    )
+                  }
+                })}
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
         <div className="mx-4 my-5">
           <table className="w-full text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
