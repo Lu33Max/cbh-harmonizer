@@ -7,6 +7,13 @@ import { type Samples } from "@prisma/client";
 import cuid from "cuid";
 import { SampleSchema } from "~/common/database/samples";
 
+import React from 'react';
+import Labels from '~/components/Lables';
+
+import { DndProvider } from 'react-dnd';
+import { HTML5Backend } from 'react-dnd-html5-backend';
+import { useDrop } from 'react-dnd';
+
 const Home: NextPage = () => {
   // General Table
   const [page,] = useState<number>(1)
@@ -235,11 +242,6 @@ const Home: NextPage = () => {
         {input !== undefined && (
           <>
             <div className="max-w-[100vw] flex flex-row flex-wrap">
-              {header.map((cell, i) => {
-                return (
-                  <label key={i} className="px-2">{cell}</label>
-                )
-              })}
               {/*Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
                 return(
                   <label key={i}>{name}</label>
@@ -264,6 +266,128 @@ const Home: NextPage = () => {
             {JSON.stringify(errorSamples)}
           </div>
         )}
+
+        <div className="mx-4 my-5">
+          <DndProvider backend={HTML5Backend}> <Labels labels={header}/> </DndProvider>
+          </div>
+          <div className="mx-4 my-5 overflow-x-auto">
+            <table className="w-full columns-200 table-fixed text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
+              <thead>
+              <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight ">
+                  <th className="py-2 font-extralight border-dotted rounded-l-xl border-black border-r-2 w-[200px]">CBH_Donor_ID</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">CBH_Master_ID</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">CBH_Sample_ID</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Price</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Quantity</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Unit</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Matrix</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Storage_Temperature</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Freeze_Thaw_Cycles</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Sample_Condition</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Infectious_Disease_Test_Result</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Gender</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Age</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Ethnicity</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">BMI</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Lab_Parameter</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Interpretation</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Raw</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Numerical</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Unit</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Cut_Off_Raw</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Cut_Off_Numerical</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Test_Method</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Test_System</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Test_System_Manufacturer</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Result_Obtained_From</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Diagnosis</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Diagnosis_Remarks</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">ICD_Code</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Pregnancy_Week</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Pregnancy_Trimester</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Medication</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Therapy</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Histological_Diagnosis</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Organ</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Disease_Presentation</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">TNM_Class_T</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">TNM_Class_N</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">TNM_Class_M</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Tumour_Grade</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Tumour_Stage</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Viable_Cells__per_</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Necrotic_Cells__per_</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Tumour_Cells__per_</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Proliferation_Rate__Ki67_per_</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Estrogen_Receptor</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Progesteron_Receptor</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">HER_2_Receptor</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Other_Gene_Mutations</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Country_of_Collection</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Date_of_Collection</th>
+                  <th className="py-2 font-extralight border-dotted border-black border-r-2 w-[200px]">Procurement_Type</th>
+                  <th className="py-2 font-extralight rounded-r-xl w-[200px]">Informed_Consent</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="items-center text-2xl bg-gray-300 rounded-l-xl border-dotted border-black border-r-2 h-9"></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 border-dotted border-black border-r-2 h-9 "></td>
+                      <td className="py-2 px-3 bg-gray-300 rounded-r-xl"></td> 
+                </tr>
+              </tbody>
+            </table>
+          </div>
 
         <div className="mx-4 my-5">
           <table className="w-full text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
