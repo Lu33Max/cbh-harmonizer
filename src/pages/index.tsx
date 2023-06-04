@@ -6,8 +6,32 @@ import Excel from 'exceljs';
 import { type Samples } from "@prisma/client";
 import cuid from "cuid";
 import { SampleSchema } from "~/common/database/samples";
+import Sidebar from "~/components/sidebar";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
+  const { data: session } = useSession()
+  const router = useRouter()
+
+  if(!session){
+    return (
+      <div>
+        <p>You are not signed in.</p>
+        <button onClick={() => void signIn()}>Sign in</button>
+      </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-row max-w-[100vw] max-h-[100vh] overflow-x-hidden overflow-y-hidden font-poppins">
+      <Sidebar/>
+      <Import/>
+    </div>
+  )
+}
+
+const Import: React.FC = () => {
   // General Table
   const [pagelength,] = useState<number>(100)
   const [search, setSearch] = useState<string>("")
@@ -34,6 +58,8 @@ const Home: NextPage = () => {
   const [donorNumber, setDonorNumber] = useState<number>(0)
   const [masterNumber, setMasterNumber] = useState<number>(0)
   const [sampleNumber, setSampleNumber] = useState<number>(0)
+
+  type SampleKey = keyof typeof newSamples[0];
 
   useEffect(() => {
     if (mappings.length < Object.getOwnPropertyNames(SampleSchema.shape).length - 1) {
@@ -152,67 +178,83 @@ const Home: NextPage = () => {
     }
   }
 
-  function donorMapping (donorID: string | undefined, inputID: string | undefined): string {
-    if(donorID !== undefined){
-      return donorID;
-    }
-    else {
-      const newDonorID = "CBHD" + donorNumber.toString()
-      setDonorNumber (donorNumber + 1)
-
-      // Test, if the input had an ID assigned and only then create a new mapping
-      if(inputID !== undefined){
-        // Create new mapping
-      }
-
-      return newDonorID
-    }
-  }
-
-  function masterMapping (masterID: string | undefined, inputID: string | undefined): string {
-    if(masterID !== undefined){
-      return masterID;
-    }
-    else {
-      const newMasterID = "CBHD" + masterNumber.toString()
-      setMasterNumber (masterNumber + 1)
-
-      // Test, if the input had an ID assigned and only then create a new mapping
-      if(inputID !== undefined){
-        // Create new mapping
-      }
-
-      return newMasterID
-    }
-  }
-
-  function sampleMapping (sampleID: string | undefined, inputID: string | undefined): string {
-    if(sampleID !== undefined){
-      return sampleID;
-    }
-    else 
-    {
-      const newSampleID = "CBHD" + sampleNumber.toString()
-      setSampleNumber(sampleNumber + 1)
-
-      // Test, if the input had an ID assigned and only then create a new mapping
-      if(inputID !== undefined){
-        // Create new mapping
-      }
-
-      return newSampleID
-    }
-  }
-
   function mapColumns (): void {
     const objectsToCreate: Samples[] = [];
-    console.log(rawSamples[rawSamples.length-1])
+
+    // Wenn wir eine neue ID erstellen, aber sich nachfolgend im Input Array noch weitere Einträge mit gleicher AusgangsID befinden, so würden diese alle auf unterschiedliche IDs gemappt
+    // werden, weil die Datenbank in der ZWischenzeit nicht nochmal gefetcht wird. Deswegen werden temporär alle neuen Arrays schonmal in ein lokales Array geschrieben, während sie
+    // parallel zusätzlich noch in der Datenbank ergänzt werden
+    const tempDonorIDs = donorIDs ? [...donorIDs] : []
+    const tempMasterIDs = masterIDs ? [...masterIDs] : []
+    const tempSampleIDs = sampleIDs ? [...sampleIDs] : []
+
+    let tempDonorNumber = donorNumber
+    let tempMasterNumber = masterNumber
+    let tempSampleNumber = sampleNumber
+
+    // Die Funktionen sind jetzt in die mapColumns Method egewandert, um Zugriff die IDs und Arrays über sch zu haben
+    function donorMapping (donorID: string | undefined, inputID: string | undefined): string {
+      if(donorID !== undefined)
+      {
+        return donorID;
+      } 
+      else 
+      {
+        const newDonorID = "CBHD" + tempDonorNumber.toString()
+        tempDonorNumber++
+  
+        // Test, if the input had an ID assigned and only then create a new mapping
+        if(inputID !== undefined){
+          tempDonorIDs.push({id: "", Input_Donor_ID: inputID, Mapped_Donor_ID: newDonorID})
+          // API Request to create new entry here
+        }
+  
+        return newDonorID
+      }
+    }
+  
+    function masterMapping (masterID: string | undefined, inputID: string | undefined): string {
+      if(masterID !== undefined)
+      {
+        return masterID;
+      }
+      else 
+      {
+        const newMasterID = "CBHM" + tempMasterNumber.toString()
+        tempMasterNumber++
+  
+        // Test, if the input had an ID assigned and only then create a new mapping
+        if(inputID !== undefined){
+          tempMasterIDs.push({id: "", Input_Master_ID: inputID, Mapped_Master_ID: newMasterID})
+          // API Request to create new entry here
+        }
+  
+        return newMasterID
+      }
+    }
+  
+    function sampleMapping (sampleID: string | undefined, inputID: string | undefined): string {
+      if(sampleID !== undefined){
+        return sampleID;
+      }
+      else 
+      {
+        const newSampleID = "CBHS" + tempSampleNumber.toString()
+        tempSampleNumber++
+  
+        // Test, if the input had an ID assigned and only then create a new mapping
+        if(inputID !== undefined){
+          tempSampleIDs.push({id: "", Input_Sample_ID: inputID, Mapped_Sample_ID: newSampleID})
+          // API Request to create new entry here
+        }
+        return newSampleID
+      }
+    }
   
     rawSamples.forEach(sample => {
-
-      const donorID = donorIDs?.find(c => (mappings[0] !== undefined && sample[mappings[0]] !== "") ? c.Input_Donor_ID ===  sample[mappings[0]] ?? null : false);
-      const masterID = masterIDs?.find(c => (mappings[1] !== undefined && sample[mappings[1]] !== "") ? c.Input_Master_ID ===  sample[mappings[1]] ?? null : false);
-      const sampleID = sampleIDs?.find(c => (mappings[2] !== undefined && sample[mappings[2]] !== "") ? c.Input_Sample_ID ===  sample[mappings[2]] ?? null : false);
+      const donorID = tempDonorIDs.find(c => (mappings[0] !== undefined && sample[mappings[0]] !== "") ? c.Input_Donor_ID ===  sample[mappings[0]] ?? null : false);
+      const masterID = tempMasterIDs.find(c => (mappings[1] !== undefined && sample[mappings[1]] !== "") ? c.Input_Master_ID ===  sample[mappings[1]] ?? null : false);
+      const sampleID = tempSampleIDs.find(c => (mappings[2] !== undefined && sample[mappings[2]] !== "") ? c.Input_Sample_ID ===  sample[mappings[2]] ?? null : false);
 
       const dateValue = (mappings[50] !== undefined && sample[mappings[50]] !== "") ? new Date(String(sample[mappings[50]])) ?? null : null;
   
@@ -289,7 +331,10 @@ const Home: NextPage = () => {
       }
     })
   
-    console.log(objectsToCreate.length)
+    setDonorNumber(tempDonorNumber)
+    setMasterNumber(tempMasterNumber)
+    setSampleNumber(tempSampleNumber)
+    
     setNewSamples(objectsToCreate)
   }
 
@@ -340,6 +385,10 @@ const Home: NextPage = () => {
     }
   }
 
+  function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
+    return o[propertyName]
+  }
+
   return (
     <>
       <Head>
@@ -348,107 +397,209 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex min-h-screen flex-col px-5 py-5 text-lg max-w-[100vw] overflow-x-hidden">
-
-        <div className="flex flex-row gap-3 mx-4">
+      <main className="flex min-h-screen flex-col pl-5 pr-10 py-5 text-lg max-w-[100vw] overflow-x-hidden overflow-y-scroll">
+        <h1 className="text-6xl font-semibold text-[#164A41] mb-5">Upload</h1>
+        
+        {/*<div className="flex flex-row gap-3 mx-4">
           <input type="file" accept=".xlsx,.csv" onChange={(e) => setInput(e.target.files !== null ? e.target.files[0] : undefined)}></input>
           <input type="number" onChange={(e) => setStartRow(Number(e.target.value) ?? 1)} className="border-2 border-black py-1" placeholder="Start Column"></input>
           <button onClick={readFile} className="bg-green-300 rounded-xl px-3 py-1">Read File</button>
+        </div>*/}
+
+        <p>
+          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dolor in maxime saepe autem! Reprehenderit ab, et fugiat doloremque aliquam corrupti illum cumque deserunt quasi iure accusantium sunt qui incidunt alias.
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis, sint harum nesciunt impedit, exercitationem hic, accusamus aliquam ea consequuntur autem error? Excepturi nam culpa a obcaecati est? Saepe, vero nemo.
+        </p>
+
+        {/* Phase 1 */}
+        <div className="grid grid-flow-col grid-cols-10 mt-4 mb-2">
+          <div className="flex flex-row justify-center items-center">
+            <div className="flex bg-[#4D774E] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+              <h1 className="text-white text-4xl">1</h1>
+            </div>
+          </div>
+          <div className="flex flex-row items-center gap-2 col-span-9">
+            <h1 className="text-[#4D774E] text-4xl">Choosing your data</h1>
+          </div>  
+        </div>
+        <p className="ml-36 mb-3">
+          Simply choose the file you want to upload. Currently only .xlsx and .csv files are supported. When uploading an Excel file, please also specify in which row your header is placed. This is the row with all column names in it. Once you are done click the &quot;Read File&quot; button to continue with the next step.
+        </p>
+        <div className="flex flex-row items-center gap-10 ml-36 mt-3 justify-stretch">
+          <div className="flex flex-row gap-3 items-center min-w-[50%]">
+            <input type="file" accept=".xlsx,.csv" onChange={(e) => setInput(e.target.files !== null ? e.target.files[0] : undefined)} className="relative m-0 block min-w-10 flex-auto rounded-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-500 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-500 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary"/>
+          </div>
+          <div className={`flex flex-row items-center ${input?.name.endsWith(".xlsx") ? "text-black" : "text-gray-400"}`}>
+            <label className="bg-neutral-700 py-1 text-white px-3 rounded-l-xl font-extralight whitespace-nowrap">Starting row</label>
+            <input type="number" disabled={input?.name.endsWith(".xlsx") ? false : true} onChange={(e) => setStartRow(Number(e.target.value) ?? 1)} className="relative min-w-0 m-0 block min-w-10 flex-auto rounded-r-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-500 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-500 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary" placeholder="Starting row"></input>
+          </div>
+          <button onClick={readFile} className="bg-[#4D774E] hover:bg-[#7da37d] transition duration-300 ease-in-out px-5 py-1 w-full text-white rounded-xl">Read File</button>
+        </div>
+        
+        {/* Phase 2 */}
+        <div className="grid grid-flow-col grid-cols-10 mt-8 mb-2">
+          <div className="flex flex-row justify-center items-center">
+            <div className="flex bg-[#4D774E] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+              <h1 className="text-white text-4xl">2</h1>
+            </div>
+          </div>
+          <div className="flex flex-row items-center gap-2 col-span-9">
+            <h1 className="text-[#4D774E] text-4xl">Preparing your data for upload</h1>
+          </div>  
+        </div>
+        {/* Drag and Drop Elements */}
+        <div>
+          <div className="flex flex-wrap flex-row ml-36 my-5 justify-center gap-2">
+            {header.map((head, index) => (
+              <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)} className={` px-3 py-1 rounded-2xl ${(search !== "" && head.toLowerCase().includes(search)) ? "bg-[rgb(131,182,94)]" : "bg-gray-300"}`}>
+                {head}
+              </div>
+            ))}
+          </div>
+
+          <div className="ml-36 flex flex-row justify-center gap-20">
+            <div className="flex flex-row">
+              <label className="bg-neutral-700 py-1 text-white px-3 rounded-l-xl font-extralight whitespace-nowrap">Search</label>
+              <input className="relative min-w-0 m-0 block min-w-10 flex-auto rounded-r-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-500 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-500 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary" value={search} onChange={(e) => setSearch(e.target.value)}></input>
+            </div>
+          </div>
+
+          {/* Mappings Table */}
+          <div className="ml-36 my-5 max-h-[50vh] overflow-y-scroll">
+            <div className="flex flex-row justify-between">
+              <table>
+                <thead>
+                  <tr className="text-white">
+                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tr-xl">Input Column</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
+                    if(i !== 0 && i < Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3)){
+                      return(
+                        <tr key={i}>
+                          <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
+                          <td className={`bg-gray-300 border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
+                            <div className='min-h-[2rem] h-auto w-[11vw] text-gray-600' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>           
+                          </td>
+                        </tr>
+                      )
+                    }
+                  })}
+                </tbody>
+              </table>
+
+              <table>
+                <thead>
+                  <tr className="text-white">
+                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tr-xl">Input Column</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
+                    if(i >= Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) && i < Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2)){
+                      return(
+                        <tr key={100 + i}>
+                          <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
+                          <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-br-xl" : ""}`}>
+                            <div className='min-h-[2rem] h-auto w-[11vw] text-gray-600' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
+                          </td>
+                        </tr>
+                      )
+                    }
+                  })}
+                </tbody>
+              </table>
+
+              <table>
+                <thead>
+                  <tr className="text-white">
+                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tr-xl">Input Column</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
+                    if(i >= Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2)){
+                      return(
+                        <tr key={1000 + i}>
+                          <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
+                          <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-br-xl" : ""}`}>
+                            <div className='min-h-[2rem] h-auto w-[11vw] text-gray-600' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
+                          </td>
+                        </tr>
+                      )
+                    }
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
 
-        {input !== undefined && (
-          <>
-            {header.length > 0 && (
-              <button onClick={mapColumns}>Apply Mappings</button>
-            )}
+        <div className="flex flex-row w-full justify-center">
+          <button className="bg-[#4D774E] hover:bg-[#7da37d] w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-xl" onClick={mapColumns}>Apply Mappings</button>
+        </div>
 
-            {newSamples.length > 0 && (
-              <>
-                <button onClick={onSubmit}>Submit</button>
-              </>
-            )}
-          </>
-        )}
+        {/* Phase 3 */}
+        <div className="grid grid-flow-col grid-cols-10 mt-8 mb-2">
+          <div className="flex flex-row justify-center items-center">
+            <div className="flex bg-[#4D774E] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+              <h1 className="text-white text-4xl">3</h1>
+            </div>
+          </div>
+          <div className="flex flex-row items-center gap-2 col-span-9">
+            <h1 className="text-[#4D774E] text-4xl">Final check and upload</h1>
+          </div>  
+        </div>
+
+        <div className="ml-36 w-[75vw]">
+          <div className="overflow-x-auto">
+          <table>
+            <thead>
+              <tr>
+                {Object.getOwnPropertyNames(SampleSchema.shape).map((name,i) => {
+                  if(i > 0){
+                    return(
+                      <th key={2000 + i} className={`bg-[#4D774E] whitespace-nowrap font-extralight text-white px-2 py-1 ${i === 1 ? "rounded-tl-xl" : i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "rounded-tr-xl" : ""}`}>{name.replaceAll("_"," ")}</th>
+                    )
+                  }
+                })}
+              </tr>
+            </thead>
+            <tbody>
+              {newSamples.map((sample, i) => {
+                if(i < 5){
+                  return (
+                    <tr key={3000 + i}>
+                      {Object.getOwnPropertyNames(SampleSchema.shape).map((name, j) => {
+                        if(j > 0){
+                          return (
+                            <td key={4000 + j} className="py-2 px-3 bg-gray-300">{getProperty(sample, name as SampleKey)?.toString()}</td>
+                          )
+                        }
+                      })}
+                    </tr>
+                  )
+                }
+              })}
+            </tbody>
+          </table>
+          </div>
+        </div>
+
+        <div className="flex flex-row w-full justify-center">
+          <button className="bg-[#4D774E] hover:bg-[#7da37d] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-xl" onClick={onSubmit}>Submit</button>
+        </div>
+
 
         {errorSamples.length > 0 && (
           <div className="overflow-x-auto">
             {JSON.stringify(errorSamples)}
           </div>
         )}
-
-        <input value={search} onChange={(e) => setSearch(e.target.value)}></input>
-
-        {/* Drag and Drop Elements */}
-        <div className="flex flex-wrap flex-row mx-4 my-5 justify-center gap-2">
-          {header.map((head, index) => (
-            <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)} className={` px-3 py-1 rounded-2xl ${(search !== "" && head.toLowerCase().includes(search)) ? "bg-[rgb(131,182,94)]" : "bg-gray-300"}`}>
-              {head}
-            </div>
-          ))}
-        </div>
-
-        {/* Mappings Table */}
-        <div className="mx-4 my-5 overflow-x-auto">
-          <table className="w-full columns-200 table-fixed text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
-            <thead>
-              <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight">
-                {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
-                  if (i != 0) {
-                    return (
-                      <th key={i} className={`${i == 1 ? "rounded-l-full border-dotted border-black border-r-2 h-9" : i == Object.getOwnPropertyNames(SampleSchema.shape).length-1 ? "rounded-r-full" : "border-dotted border-black border-r-2 h-9" } py-2 font-extralight w-[350px]`}>
-                        {name}
-                      </th>
-                    )
-                  }
-                })}
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                {Object.getOwnPropertyNames(SampleSchema.shape).map((_, i) => {
-                  if (i != 0) {
-                    return (
-                      <td key={i} className={`${i == 1 ? "rounded-l-full border-dotted border-black border-r-2 h-9" : i == Object.getOwnPropertyNames(SampleSchema.shape).length-1 ? "rounded-r-full" : "border-dotted border-black border-r-2 h-9" } py-2 px-3 bg-gray-300`}>
-                        <div className='w-full h-full' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
-                      </td>
-                    )
-                  }
-                })}
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="mx-4 my-5">
-          <table className="w-full text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
-            <thead>
-              <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight">
-                <th className="py-2 rounded-l-xl border-dotted border-black border-r-2">CBHDonorID</th>
-                <th className="py-2 border-dotted border-black border-r-2">CBHSampleID</th>
-                <th className="py-2 border-dotted border-black border-r-2">Matrix</th>
-                <th className="py-2 border-dotted border-black border-r-2">Quantity</th>
-                <th className="py-2 border-dotted border-black border-r-2">Unit</th>
-                <th className="py-2 border-dotted border-black border-r-2">Age</th>
-                <th className="py-2 border-dotted border-black border-r-2">Gender</th>
-                <th className="py-2 rounded-r-xl">Price</th>
-              </tr>
-            </thead>
-            <tbody>
-              {samples?.map((sample, index) => (
-                <tr key={index} className="text-center">
-                  <td className="py-2 px-3 bg-gray-300 rounded-l-xl">{sample.CBH_Donor_ID}</td>
-                  <td className="py-2 px-3 bg-gray-300">{sample.CBH_Sample_ID}</td>
-                  <td className="py-2 px-3 bg-gray-300">{sample.Matrix}</td>
-                  <td className="py-2 px-3 bg-gray-300">{sample.Quantity}</td>
-                  <td className="py-2 px-3 bg-gray-300">{sample.Unit}</td>
-                  <td className="py-2 px-3 bg-gray-300">{sample.Age}</td>
-                  <td className="py-2 px-3 bg-gray-300">{sample.Gender}</td>
-                  <td className="py-2 px-3 bg-gray-300 rounded-r-xl">{sample.Price} €</td> 
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
       </main>
     </>
   );

@@ -1,8 +1,5 @@
-import { PrismaClient } from "@prisma/client";
 import { createTRPCRouter, publicProcedure } from "~/server/api/trpc";
 import { z } from 'zod';
-
-const prisma = new PrismaClient();
 
 export const sampleIDMappingRouter = createTRPCRouter ({
     getAll: publicProcedure
@@ -47,6 +44,7 @@ export const donorIDMappingRouter = createTRPCRouter ({
         })
     })
 })
+
     
 export const masterIDMappingRouter = createTRPCRouter ({
     getAll: publicProcedure

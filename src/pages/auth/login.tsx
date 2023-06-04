@@ -9,9 +9,9 @@ import { authOptions } from "~/server/auth";
 export default function LoginPage({ providers }: InferGetServerSidePropsType<typeof getServerSideProps>) {
   return (
     <>
-      <section className="bg-ct-blue-600 min-h-screen pt-20">
+      <section className="min-h-screen flex flex-col justify-center items-center bg-gradient-to-br from-[#1c6641] to-[#9DC88D] font-poppins">
         <div className="container mx-auto px-6 py-12 h-full flex justify-center items-center">
-          <div className="md:w-8/12 lg:w-5/12 bg-white px-8 py-10">
+          <div className="md:w-8/12 lg:w-5/12 bg-black/30 px-8 py-10 backdrop-blur-sm shadow-xl shadow-black/30">
             <LoginForm providers={providers} />
           </div>
         </div>
@@ -83,9 +83,7 @@ export const LoginForm = ({ providers }: InferGetServerSidePropsType<typeof getS
       </div>
       <button
         type="submit"
-        style={{ backgroundColor: "#3446eb" }}
-        className="inline-block px-7 py-4 bg-blue-600 text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-blue-700 hover:shadow-lg focus:bg-blue-700 focus:shadow-lg focus:outline-none focus:ring-0 active:bg-blue-800 active:shadow-lg transition duration-150 ease-in-out w-full"
-
+        className="inline-block px-7 py-4 bg-[#164A41] text-white font-medium text-sm leading-snug uppercase rounded shadow-md hover:bg-[#297753] hover:shadow-lg focus:bg-[#1c6641] focus:shadow-lg focus:outline-none focus:ring-0 active:bg-[#164A41] active:shadow-lg transition duration-150 ease-in-out w-full"
       >
         Sign In
       </button>
@@ -94,18 +92,8 @@ export const LoginForm = ({ providers }: InferGetServerSidePropsType<typeof getS
         <p className="text-center font-semibold mx-4 mb-0">OR</p>
       </div>
 
-      {Object.values(providers).filter(provider => provider.name !== "credentials").map((provider) => (
-        <>
-          <div key={provider.name}>
-            <button onClick={() => void signIn(provider.id)}>
-              Sign in with {provider.name}
-            </button>
-          </div>    
-        </>
-      ))}
-
       <div className="text-center">
-        <p>Don&apos;t have an account yet? <Link href={`/auth/signup?prev=${callbackURL}`} className="text-blue-700">Sign Up</Link></p>
+        <p>Don&apos;t have an account yet? <Link href={`/auth/signup?prev=${callbackURL}`} className="text-[#9DC88D] hover:text-[#cfe6c8]">Sign Up</Link></p>
       </div>
     </form>
   );
