@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 
 export const mappingsRouter = createTRPCRouter({
+    
     getAll: protectedProcedure
         .query(async({ ctx }) => {
             return await ctx.prisma.mapping.findMany({

@@ -8,11 +8,9 @@ import cuid from "cuid";
 import { SampleSchema } from "~/common/database/samples";
 import Sidebar from "~/components/sidebar";
 import { signIn, useSession } from "next-auth/react";
-import { useRouter } from "next/router";
 
 const Home: NextPage = () => {
   const { data: session } = useSession()
-  const router = useRouter()
 
   if(!session){
     return (
@@ -37,7 +35,6 @@ const Import: React.FC = () => {
   const [search, setSearch] = useState<string>("")
 
   // API Requests
-  const { data: samples, refetch: refetchSamples } = api.samples.getMany.useQuery({ take: pagelength, skip: 0})
   const upload = api.samples.create.useMutation()
   const uploadMany = api.samples.createMany.useMutation()
   const { data: sampleIDs, refetch: refetchSampleID } = api.sampleidmapping.getAll.useQuery()
@@ -351,14 +348,6 @@ const Import: React.FC = () => {
     uploadSamples.forEach((samples, i) => {
       setTimeout(() => uploadFunction(samples), i * 5000)
     })
-
-    /*setErrorSamples(errors)
-    setRawSamples([])
-    setHeader([])
-    setNewSamples([])
-    setInput(undefined)*/
-
-    void refetchSamples()
   }
 
   function uploadFunction(uploadSamples: Samples[]){

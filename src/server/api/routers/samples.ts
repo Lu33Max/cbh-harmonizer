@@ -5,17 +5,32 @@ import { SampleSchema } from "~/common/database/samples";
 export const sampleRouter = createTRPCRouter({
 
     getMany: publicProcedure
-        .input(z.object({take: z.number(), skip: z.number()}))
+        .input(z.object({ lines: z.number().optional(), pages: z.number().optional()}))
         .query(async ({ ctx, input }) => {
             return ctx.prisma.samples.findMany({
-                take: input.take,
-                skip: input.skip
+                take: input.lines,
+                skip: (input.pages && input.lines) ? (input.pages - 1) * input.lines : 0,
             })
         }),
 
     getAll: publicProcedure
         .query(async ({ ctx }) => {
             return ctx.prisma.samples.findMany()
+        }),
+
+    countNormal: publicProcedure
+        .query(async ({ ctx }) => {
+            const result = await ctx.prisma.samples.findMany({
+                distinct: ['CBH_Sample_ID'],
+                orderBy: {
+                    CBH_Sample_ID: 'desc',
+                },
+                select: {
+                    CBH_Sample_ID: true
+                }
+            });
+            
+            return result.length
         }),
 
     create: publicProcedure
