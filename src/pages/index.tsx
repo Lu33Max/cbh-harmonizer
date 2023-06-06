@@ -8,7 +8,12 @@ import cuid from "cuid";
 import { SampleSchema } from "~/common/database/samples";
 import Sidebar from "~/components/sidebar";
 import { signIn, useSession } from "next-auth/react";
+<<<<<<< Updated upstream
 import { Login } from "~/components/login";
+=======
+import { ModalLoad } from "~/common/mappings/modalLoad";
+import { ModalSave } from "~/common/mappings/modalSave"; 
+>>>>>>> Stashed changes
 
 const Home: NextPage = () => {
   const { data: session } = useSession()
@@ -579,6 +584,11 @@ const Import: React.FC = () => {
           </table>
           </div>
         </div>
+
+        <>
+          <ModalSave showModal={showSave} setShowModal={setShowSave} filter={filterNormal}/>
+          <ModalLoad showModal={showLoad} setShowModal={setShowLoad} setFilter={setFilter} />
+        </>
 
         <div className="flex flex-row w-full justify-center">
           <button className="bg-[#4D774E] hover:bg-[#7da37d] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-xl" onClick={onSubmit}>Submit</button>
