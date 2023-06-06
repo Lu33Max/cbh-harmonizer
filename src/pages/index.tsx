@@ -47,7 +47,7 @@ const Import: React.FC = () => {
   // File Reader
   const [input, setInput] = useState<File | undefined>(undefined)
   const [startRow, setStartRow] = useState<number>(1)
-  const [header, setHeader] = useState<string[]>([])
+  const [header, setHeader] = useState<(string | undefined)[]>([])
   const [rawSamples, setRawSamples] = useState<string[][]>([])
   const [newSamples, setNewSamples] = useState<Samples[]>([])
   const [errorSamples, setErrorSamples] = useState<Samples[]>([])
@@ -124,11 +124,13 @@ const Import: React.FC = () => {
               workbook.eachSheet((sheet) => {
                 sheet.eachRow((row, rowIndex) => {
                   if(rowIndex === startRow){
-                    const tempHeader: string[] = []
+                    const tempHeader: (string | undefined)[] = []
 
                     row.eachCell((cell) => {
                       tempHeader.push(cell.text)
                     })
+
+                    tempHeader.push(undefined)
 
                     rowLength = tempHeader.length
                     setHeader(tempHeader)
@@ -335,7 +337,7 @@ const Import: React.FC = () => {
     setNewSamples(objectsToCreate)
   }
 
-  function onSubmit() {
+ function onSubmit() {
     const uploadSamples: Samples[][] = []
     const size = 200
 
@@ -343,6 +345,21 @@ const Import: React.FC = () => {
     // nacheinander ausgeführt werden, um so die Datenbank nicht zu überlasten
     for (let i = 0; i < newSamples.length; i += size) {
       uploadSamples.push(newSamples.slice(i, i + size));
+    }
+
+    uploadSamples.forEach((samples, i) => {
+      setTimeout(() => uploadFunction(samples), i * 5000)
+    })
+  }
+
+  function onSubmitErrorSamples() {
+    const uploadSamples: Samples[][] = []
+    const size = 200
+
+    // Weil ein zu großes Array die maximalen Beschränkungen für einen HTTP Body überschreitet, wird das große Array hier in kleinere Arrays unterteilt, die jeweils mit 1 Sekunfde Delay
+    // nacheinander ausgeführt werden, um so die Datenbank nicht zu überlasten
+    for (let i = 0; i < errorSamples.length; i += size) {
+      uploadSamples.push(errorSamples.slice(i, i + size));
     }
 
     uploadSamples.forEach((samples, i) => {
@@ -440,7 +457,7 @@ const Import: React.FC = () => {
         <div>
           <div className="flex flex-wrap flex-row ml-36 my-5 justify-center gap-2">
             {header.map((head, index) => (
-              <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)} className={` px-3 py-1 rounded-2xl ${(search !== "" && head.toLowerCase().includes(search)) ? "bg-[rgb(131,182,94)]" : "bg-gray-300"}`}>
+              <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)} className={` px-3 py-1 rounded-2xl ${(search !== "" && head && head.toLowerCase().includes(search)) ? "bg-[rgb(131,182,94)]" : "bg-gray-300"}`}>
                 {head}
               </div>
             ))}
@@ -469,7 +486,7 @@ const Import: React.FC = () => {
                       return(
                         <tr key={i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
-                          <td className={`bg-gray-300 border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
+                          <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
                             <div className='min-h-[2rem] h-auto w-[11vw] text-gray-600' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>           
                           </td>
                         </tr>
@@ -583,10 +600,37 @@ const Import: React.FC = () => {
           <button className="bg-[#4D774E] hover:bg-[#7da37d] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-xl" onClick={onSubmit}>Submit</button>
         </div>
 
-
         {errorSamples.length > 0 && (
-          <div className="overflow-x-auto">
-            {JSON.stringify(errorSamples)}
+          <div className="">
+            {errorSamples.map((sample, i) => {
+              return (
+              <>
+                {Object.getOwnPropertyNames(sample).map((property, j) => {
+                  return (
+                    <div>
+                      <input className="bg-gray-300  w-[206px] border-t-2 border-white px-2 pb-1 white"  key={6000 + j} placeholder={property} value={getProperty(sample, property as SampleKey)?.toString()} onChange={(e) => {
+                        sample = {...sample, [property] : e.target.value}
+                        let tempSamples = errorSamples
+                        tempSamples[i] = sample
+                        setErrorSamples(tempSamples)
+                      }}></input>
+                    </div>
+                  )
+                })}
+                <button className="bg-[#4D774E] text-center w-[100px] mt-2 border-t-2 border-white px-2 pb-1 rounded-l-lg text-white" key={7000 + i} onClick={() => {
+                  return upload.mutate(sample)
+                }}>Apply</button>
+                <button className="bg-[#8c1d1d] text-center w-[100px] ml-1 border-t-2 border-white px-2 pb-1 rounded-r-lg text-white" key={8000 + i} onClick={() => {
+                  var tempArray = errorSamples
+                  tempArray.filter((_,index) => {index === i})
+                  setErrorSamples(tempArray)
+                }}>Delete</button>
+              </>)
+            })}
+
+            <div className="flex flex-row w-full justify-center">
+              <button className="bg-[#4D774E] hover:bg-[#7da37d] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-lg" onClick={onSubmitErrorSamples}>Submit</button>
+            </div>
           </div>
         )}
       </main>
