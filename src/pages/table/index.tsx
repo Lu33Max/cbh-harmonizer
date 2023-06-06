@@ -328,7 +328,7 @@ const Table: React.FC = () => {
                             <th key={i} className="py-2 font-extralight border-dotted border-black border-r-2"><button onClick={() => {sortBy === "" ? setSortBy(column): setSortBy(""); handleSort(column as SampleKey)}}>{column.replace(/_/g," ")}</button></th>
                         )
                     })}
-                    <th className="py-2 font-extralight rounded-r-xl">Details</th>
+                    <th className="py-2 font-extralight">Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -340,7 +340,7 @@ const Table: React.FC = () => {
                                     <td key={i} className="py-2 px-3 bg-gray-300">{getProperty(sample, column as SampleKey)?.toString()}</td>
                                 )
                             })}
-                             <td className="py-2 px-3 bg-gray-300 rounded-r-xl"><button onClick={() => { updateState(index) }}><BiDetail className="relative top-1" /></button></td>
+                             <td className="py-2 px-3 bg-gray-300"><button onClick={() => { updateState(index) }}><BiDetail className="relative top-1" /></button></td>
                         </tr>
                         <tr className={`mx-5 ${show[index] ? "" : "hidden"}`}>
                             <td colSpan={2} className="px-5 bg-gray-200">

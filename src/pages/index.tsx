@@ -258,12 +258,12 @@ const Import: React.FC = () => {
 
       if (slashSeperated.test(dateValue)) {
         const [month, day, year] = dateValue.split("/");
-        return new Date(`${year}-${month}-${day}T00:00:00`);
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
       }
 
       if (dotSeperated.test(dateValue)) {
         const [day, month, year] = dateValue.split(".");
-        return new Date(`${year}-${month}-${day}T00:00:00`);
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
       }
 
       if (hyphenSeperated.test(dateValue)) {
@@ -371,7 +371,7 @@ const Import: React.FC = () => {
   
     rawSamples.forEach((sample, index) => {
       if (index === rawSamples.length -1) {
-        const LastLine: String[] = [];
+        const LastLine: string[] = [];
         for(let i = 0; i < sample.length; i++){
           LastLine.push("");
         }
@@ -545,8 +545,7 @@ const Import: React.FC = () => {
         </div>*/}
 
         <p>
-          Lorem ipsum dolor sit amet consectetur, adipisicing elit. Dolor in maxime saepe autem! Reprehenderit ab, et fugiat doloremque aliquam corrupti illum cumque deserunt quasi iure accusantium sunt qui incidunt alias.
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Veritatis, sint harum nesciunt impedit, exercitationem hic, accusamus aliquam ea consequuntur autem error? Excepturi nam culpa a obcaecati est? Saepe, vero nemo.
+          Here you can upload your Excel or csv data into the database of Central BioHub. Simply follow all of the steps bellow and press Submit at the end of the page. Your data will be automatically converted into the specified format und uploaded directly into the database.
         </p>
 
         {/* Phase 1 */}
@@ -585,6 +584,9 @@ const Import: React.FC = () => {
             <h1 className="text-[#4D774E] text-4xl">Preparing your data for upload</h1>
           </div>  
         </div>
+        <p className="ml-36 mb-3">
+          Drag and drop the desired column into the matching database column in the tables bellow. You can use the search bar to highlight columns. Once you are done, press the &apos;Apply Mappings&apos; button to proceed to the next stage. Not seeing the correct columns? Try slecting a different starting column in the first step.
+        </p>
         {/* Drag and Drop Elements */}
         <div>
           <div className="flex flex-wrap flex-row ml-36 my-5 justify-center gap-2">
@@ -693,6 +695,10 @@ const Import: React.FC = () => {
           </div>  
         </div>
 
+        <p className="ml-36 mb-3">
+          Here you can check if all of the columns are mapped correctly. Some mappings do not look correct? Simply go back one step, change your mappings and hit the &apos;Apply Mappings&apos; button again. Once everything is correct, click the &apos;Submit&apos; button at the end of the page and your data will be automatically uploaded.
+        </p>
+
         <div className="ml-36 w-[75vw]">
           <div className="overflow-x-auto">
           <table>
@@ -739,10 +745,10 @@ const Import: React.FC = () => {
               <>
                 {Object.getOwnPropertyNames(sample).map((property, j) => {
                   return (
-                    <div>
+                    <div key={6000 + i}>
                       <input className="bg-gray-300  w-[206px] border-t-2 border-white px-2 pb-1 white"  key={6000 + j} placeholder={property} value={getProperty(sample, property as SampleKey)?.toString()} onChange={(e) => {
                         sample = {...sample, [property] : e.target.value}
-                        let tempSamples = errorSamples
+                        const tempSamples = errorSamples
                         tempSamples[i] = sample
                         setErrorSamples(tempSamples)
                       }}></input>
@@ -753,7 +759,7 @@ const Import: React.FC = () => {
                   return upload.mutate(sample)
                 }}>Apply</button>
                 <button className="bg-[#8c1d1d] text-center w-[100px] ml-1 border-t-2 border-white px-2 pb-1 rounded-r-lg text-white" key={8000 + i} onClick={() => {
-                  var tempArray = errorSamples
+                  const tempArray = errorSamples
                   tempArray.filter((_,index) => {index === i})
                   setErrorSamples(tempArray)
                 }}>Delete</button>
