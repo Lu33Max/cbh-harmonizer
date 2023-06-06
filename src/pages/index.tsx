@@ -106,6 +106,16 @@ const Import: React.FC = () => {
     e.preventDefault();
   }
 
+  function castStringToNumber(inputString: string): number {
+    // Remove letters and special characters using regex
+    const cleanedString = inputString.replace(/[^0-9.-]+/g, '');
+  
+    // Cast the cleaned string to a number
+    const numberValue = parseFloat(cleanedString);
+  
+    return numberValue;
+  }
+
   function readFile() {
     if(input !== undefined){
       if(input?.name.endsWith(".xlsx")){
@@ -164,9 +174,38 @@ const Import: React.FC = () => {
           }
         }
       } else if(input.name.endsWith(".csv")){
+      
+        const reader = new FileReader();
+        
+        reader.readAsText(input);
+        reader.onload = () => {
+          const csvData = reader.result as string;
 
-        // Add csv code
-
+          if(csvData){
+            const rows = csvData.split("\n");
+            const tempSampleArray = [];
+          
+            if (rows.length > 0) {
+            // Assuming the header is in the first row
+              const tempHeader = rows[0]?.split(",") || []; // fallback value if undefined, so always valid arrays
+              setHeader(tempHeader);
+            
+              for (let i = 1; i < rows.length; i++) {
+                const rowData = rows[i]?.split(",") || [];
+                const tempSample = [];
+            
+                for (let j = 0; j < tempHeader.length; j++) {
+                  tempSample.push(rowData[j] || ""); // Push empty string if no value present
+                }
+            
+                tempSampleArray.push(tempSample);
+              }
+            }
+          
+            setRawSamples(tempSampleArray);
+          }
+        };
+        
       } else {
         alert("Filetype not supported. Try uploading data in Excel or csv format.")
       }
@@ -185,12 +224,33 @@ const Import: React.FC = () => {
     const tempMasterIDs = masterIDs ? [...masterIDs] : []
     const tempSampleIDs = sampleIDs ? [...sampleIDs] : []
 
+    const isLastEntryEmpty = async (): Promise<boolean> => {
+      // Fetch the data from your data source using Prisma
+      const data = await Prisma.sample.findMany();
+    
+      // Check if the data array is empty
+      if (data.length === 0) {
+        return false; // Data array is empty, so the last entry is not empty
+      }
+    
+      // Get the last entry from the data array
+      const lastEntry = data[data.length - 1];
+    
+      // Check if the last entry is empty
+      const isEmpty = Object.keys(lastEntry).every((key) => {
+        const value = lastEntry[key];
+        return value === null || value === undefined || value === '';
+      });
+    
+      return isEmpty;
+    };
+
     let tempDonorNumber = donorNumber
     let tempMasterNumber = masterNumber
     let tempSampleNumber = sampleNumber
 
     // Die Funktionen sind jetzt in die mapColumns Method egewandert, um Zugriff die IDs und Arrays über sch zu haben
-    function donorMapping (donorID: string | undefined, inputID: string | undefined): string {
+    async function donorMapping (donorID: string | undefined, inputID: string | undefined): Promise<string> {
       if(donorID !== undefined)
       {
         return donorID;
@@ -204,13 +264,33 @@ const Import: React.FC = () => {
         if(inputID !== undefined){
           tempDonorIDs.push({id: "", Input_Donor_ID: inputID, Mapped_Donor_ID: newDonorID})
           // API Request to create new entry here
+          const url = 'API_ENDPOINT';
+
+          const requestOptions: RequestInit = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                Input_Donor_ID: inputID,
+                Mapped_Donor_ID: newDonorID
+              }),
+            };
+
+            try {
+              const response = await fetch(url, requestOptions);
+              if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+              }
+              return newDonorID;
+            }catch (error) {
+              console.error('API request error:', error);
+              throw error;
+            }
         }
-  
         return newDonorID
       }
     }
   
-    function masterMapping (masterID: string | undefined, inputID: string | undefined): string {
+    async function masterMapping (masterID: string | undefined, inputID: string | undefined): Promise<string> {
       if(masterID !== undefined)
       {
         return masterID;
@@ -224,13 +304,33 @@ const Import: React.FC = () => {
         if(inputID !== undefined){
           tempMasterIDs.push({id: "", Input_Master_ID: inputID, Mapped_Master_ID: newMasterID})
           // API Request to create new entry here
+          const url = 'API_ENDPOINT';
+
+          const requestOptions: RequestInit = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                Input_Master_ID: inputID,
+                Mapped_Master_ID: newMasterID
+              }),
+            };
+
+            try {
+              const response = await fetch(url, requestOptions);
+              if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+              }
+              return newMasterID;
+            }catch (error) {
+              console.error('API request error:', error);
+              throw error;
+            }
         }
-  
         return newMasterID
       }
     }
   
-    function sampleMapping (sampleID: string | undefined, inputID: string | undefined): string {
+    async function sampleMapping (sampleID: string | undefined, inputID: string | undefined): Promise<string> {
       if(sampleID !== undefined){
         return sampleID;
       }
@@ -243,8 +343,29 @@ const Import: React.FC = () => {
         if(inputID !== undefined){
           tempSampleIDs.push({id: "", Input_Sample_ID: inputID, Mapped_Sample_ID: newSampleID})
           // API Request to create new entry here
+          const url = 'API_ENDPOINT';
+
+          const requestOptions: RequestInit = {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                Input_Sample_ID: inputID,
+                Mapped_Sample_ID: newSampleID
+              }),
+            };
+
+            try {
+              const response = await fetch(url, requestOptions);
+              if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
+              }
+              return newSampleID;
+            }catch (error) {
+              console.error('API request error:', error);
+              throw error;
+            }
         }
-        return newSampleID
+        return newSampleID;
       }
     }
   
