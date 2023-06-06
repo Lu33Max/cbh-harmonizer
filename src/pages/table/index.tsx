@@ -1,5 +1,5 @@
 import { type NextPage } from "next"
-import { signIn, useSession } from "next-auth/react"
+import { useSession } from "next-auth/react"
 import { useEffect, useState } from "react"
 import Count from "~/components/search/count"
 import Footer from "~/components/search/footer"
@@ -7,6 +7,7 @@ import ShowRows from "~/components/search/showRows"
 import Sidebar from "~/components/sidebar"
 import { api } from "~/utils/api"
 import { BiCog, BiDetail } from "react-icons/bi";
+import { Login } from "~/components/login"
 
 export type TableSamples = {
     id:                                      string,
@@ -66,23 +67,22 @@ export type TableSamples = {
   }
 
 const Search: NextPage = () => {
-    const { data: session } = useSession()
+  const { data: session } = useSession()
 
-    if(!session){
-        return (
-            <div>
-                <p>You are not signed in.</p>
-                <button onClick={() => void signIn()}>Sign in</button>
-            </div>
-        )
-    }
-
+  if(!session){
     return (
-        <div className="flex flex-row max-w-[100vw] h-screen max-h-[100vh] overflow-x-hidden overflow-y-hidden font-poppins">
-            <Sidebar/>
-            <Table/>
-        </div>
+      <div>
+        <Login/>
+      </div>
     )
+  }
+
+  return (
+    <div className="flex flex-row max-w-[100vw] h-screen max-h-[100vh] overflow-x-hidden overflow-y-hidden font-poppins">
+      <Sidebar/>
+      <Table/>
+    </div>
+  )
 }
 
 export default Search

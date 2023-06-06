@@ -8,6 +8,7 @@ import cuid from "cuid";
 import { SampleSchema } from "~/common/database/samples";
 import Sidebar from "~/components/sidebar";
 import { signIn, useSession } from "next-auth/react";
+import { Login } from "~/components/login";
 
 const Home: NextPage = () => {
   const { data: session } = useSession()
@@ -15,8 +16,7 @@ const Home: NextPage = () => {
   if(!session){
     return (
       <div>
-        <p>You are not signed in.</p>
-        <button onClick={() => void signIn()}>Sign in</button>
+        <Login/>
       </div>
     )
   }
@@ -315,6 +315,7 @@ const Import: React.FC = () => {
       try {
         SampleSchema.parse(newObject)
         objectsToCreate.push(newObject)
+        
       } catch (error) {
         newObject.Date_of_Collection = null
 
