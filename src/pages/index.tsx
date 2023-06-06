@@ -37,12 +37,16 @@ const Import: React.FC = () => {
   // API Requests
   const upload = api.samples.create.useMutation()
   const uploadMany = api.samples.createMany.useMutation()
+  const createDonorID = api.donoridmapping.create.useMutation()
+  const createMasterID = api.masteridmapping.create.useMutation()
+  const createSampleID = api.sampleidmapping.create.useMutation()
   const { data: sampleIDs, refetch: refetchSampleID } = api.sampleidmapping.getAll.useQuery()
   const { data: donorIDs, refetch: refetchDonorID } = api.donoridmapping.getAll.useQuery()
   const { data: masterIDs, refetch: refetchMasterID } = api.masteridmapping.getAll.useQuery()
   const { data: currentDonorID, refetch: refetchCurrentDonorID } = api.samples.sortDonor.useQuery()
   const { data: currentMasterID, refetch: refetchCurrentMasterID } = api.samples.sortMaster.useQuery()
   const { data: currentSampleID, refetch: refetchCurrentSampleID } = api.samples.sortSample.useQuery()
+  
 
   // File Reader
   const [input, setInput] = useState<File | undefined>(undefined)
@@ -187,11 +191,11 @@ const Import: React.FC = () => {
           
             if (rows.length > 0) {
             // Assuming the header is in the first row
-              const tempHeader = rows[0]?.split(",") || []; // fallback value if undefined, so always valid arrays
+              const tempHeader = rows[0]?.split(";") || []; // fallback value if undefined, so always valid arrays
               setHeader(tempHeader);
             
               for (let i = 1; i < rows.length; i++) {
-                const rowData = rows[i]?.split(",") || [];
+                const rowData = rows[i]?.split(";") || [];
                 const tempSample = [];
             
                 for (let j = 0; j < tempHeader.length; j++) {
@@ -224,9 +228,9 @@ const Import: React.FC = () => {
     const tempMasterIDs = masterIDs ? [...masterIDs] : []
     const tempSampleIDs = sampleIDs ? [...sampleIDs] : []
 
-    const isLastEntryEmpty = async (): Promise<boolean> => {
+    /*const isLastEntryEmpty = async (): Promise<boolean> => {
       // Fetch the data from your data source using Prisma
-      const data = await Prisma.sample.findMany();
+      const data = await api.samples.getMany.useQuery();
     
       // Check if the data array is empty
       if (data.length === 0) {
@@ -243,14 +247,36 @@ const Import: React.FC = () => {
       });
     
       return isEmpty;
-    };
+    };*/
+
+    function parseDate(dateValue: string): Date | null{
+      const slashSeperated = /\d{2}\/\d{2}\/\d{4}/;
+      const dotSeperated = /\d{2}\.\d{2}\.\d{4}/;
+      const hyphenSeperated = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+
+      if (slashSeperated.test(dateValue)) {
+        const [month, day, year] = dateValue.split("/");
+        return new Date(`${year}-${month}-${day}T00:00:00`);
+      }
+
+      if (dotSeperated.test(dateValue)) {
+        const [day, month, year] = dateValue.split(".");
+        return new Date(`${year}-${month}-${day}T00:00:00`);
+      }
+
+      if (hyphenSeperated.test(dateValue)) {
+        return new Date(dateValue);
+      }
+
+      return null;
+    }
 
     let tempDonorNumber = donorNumber
     let tempMasterNumber = masterNumber
     let tempSampleNumber = sampleNumber
 
     // Die Funktionen sind jetzt in die mapColumns Method egewandert, um Zugriff die IDs und Arrays über sch zu haben
-    async function donorMapping (donorID: string | undefined, inputID: string | undefined): Promise<string> {
+    function donorMapping (donorID: string | undefined, inputID: string | undefined): string {
       if(donorID !== undefined)
       {
         return donorID;
@@ -264,33 +290,25 @@ const Import: React.FC = () => {
         if(inputID !== undefined){
           tempDonorIDs.push({id: "", Input_Donor_ID: inputID, Mapped_Donor_ID: newDonorID})
           // API Request to create new entry here
-          const url = 'API_ENDPOINT';
-
-          const requestOptions: RequestInit = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                Input_Donor_ID: inputID,
-                Mapped_Donor_ID: newDonorID
-              }),
-            };
-
-            try {
-              const response = await fetch(url, requestOptions);
-              if (!response.ok) {
-                throw new Error(`API request failed with status ${response.status}`);
-              }
-              return newDonorID;
-            }catch (error) {
-              console.error('API request error:', error);
-              throw error;
-            }
+          
+          try {
+            createDonorID.mutate({
+              Input_Donor_ID: inputID,
+              Mapped_Donor_ID: newDonorID,
+            });
+            
+            return newDonorID;
+          }catch (error) {
+            console.error('API request error:', error);
+            throw error;
+          }
         }
+      
         return newDonorID
       }
     }
   
-    async function masterMapping (masterID: string | undefined, inputID: string | undefined): Promise<string> {
+    function masterMapping (masterID: string | undefined, inputID: string | undefined): string {
       if(masterID !== undefined)
       {
         return masterID;
@@ -304,33 +322,23 @@ const Import: React.FC = () => {
         if(inputID !== undefined){
           tempMasterIDs.push({id: "", Input_Master_ID: inputID, Mapped_Master_ID: newMasterID})
           // API Request to create new entry here
-          const url = 'API_ENDPOINT';
-
-          const requestOptions: RequestInit = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                Input_Master_ID: inputID,
-                Mapped_Master_ID: newMasterID
-              }),
-            };
-
-            try {
-              const response = await fetch(url, requestOptions);
-              if (!response.ok) {
-                throw new Error(`API request failed with status ${response.status}`);
-              }
-              return newMasterID;
-            }catch (error) {
-              console.error('API request error:', error);
-              throw error;
-            }
+          try {
+            createMasterID.mutate({
+              Input_Master_ID: inputID,
+              Mapped_Master_ID: newMasterID,
+            });
+            
+            return newMasterID;
+          }catch (error) {
+            console.error('API request error:', error);
+            throw error;
+          }
         }
         return newMasterID
       }
     }
   
-    async function sampleMapping (sampleID: string | undefined, inputID: string | undefined): Promise<string> {
+    function sampleMapping (sampleID: string | undefined, inputID: string | undefined): string {
       if(sampleID !== undefined){
         return sampleID;
       }
@@ -343,63 +351,65 @@ const Import: React.FC = () => {
         if(inputID !== undefined){
           tempSampleIDs.push({id: "", Input_Sample_ID: inputID, Mapped_Sample_ID: newSampleID})
           // API Request to create new entry here
-          const url = 'API_ENDPOINT';
-
-          const requestOptions: RequestInit = {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                Input_Sample_ID: inputID,
-                Mapped_Sample_ID: newSampleID
-              }),
-            };
-
-            try {
-              const response = await fetch(url, requestOptions);
-              if (!response.ok) {
-                throw new Error(`API request failed with status ${response.status}`);
-              }
-              return newSampleID;
-            }catch (error) {
-              console.error('API request error:', error);
-              throw error;
-            }
+          try {
+            createSampleID.mutate({
+              Input_Sample_ID: inputID,
+              Mapped_Sample_ID: newSampleID,
+            });
+            
+            return newSampleID;
+          }catch (error) {
+            console.error('API request error:', error);
+            throw error;
+          }
         }
         return newSampleID;
       }
     }
   
-    rawSamples.forEach(sample => {
+    rawSamples.forEach((sample, index) => {
+      if (index === rawSamples.length -1) {
+        const LastLine: String[] = [];
+        for(let i = 0; i < sample.length; i++){
+          LastLine.push("");
+        }
+        console.log((sample));
+        console.log((LastLine));
+        console.log(JSON.stringify(sample) === JSON.stringify(LastLine));
+        if (JSON.stringify(sample) === JSON.stringify(LastLine)) {
+          return false;
+        }
+      }
       const donorID = tempDonorIDs.find(c => (mappings[0] !== undefined && sample[mappings[0]] !== "") ? c.Input_Donor_ID ===  sample[mappings[0]] ?? null : false);
       const masterID = tempMasterIDs.find(c => (mappings[1] !== undefined && sample[mappings[1]] !== "") ? c.Input_Master_ID ===  sample[mappings[1]] ?? null : false);
       const sampleID = tempSampleIDs.find(c => (mappings[2] !== undefined && sample[mappings[2]] !== "") ? c.Input_Sample_ID ===  sample[mappings[2]] ?? null : false);
 
-      const dateValue = (mappings[50] !== undefined && sample[mappings[50]] !== "") ? new Date(String(sample[mappings[50]])) ?? null : null;
+      const dateValue = (mappings[50] !== undefined && sample[mappings[50]] !== "") ? parseDate(String(sample[mappings[50]])) ?? null : null;
   
       const newObject = {
         id: cuid(),
         CBH_Donor_ID: donorMapping(donorID?.Mapped_Donor_ID, (mappings[0] !== undefined && sample[mappings[0]] !== "") ? sample[mappings[0]] : undefined),
         CBH_Master_ID: masterMapping(masterID?.Mapped_Master_ID, (mappings[1] !== undefined && sample[mappings[1]] !== "") ? sample[mappings[1]] : undefined),
         CBH_Sample_ID: sampleMapping(sampleID?.Mapped_Sample_ID, (mappings[2] !== undefined && sample[mappings[2]] !== "") ? sample[mappings[2]] : undefined),
-        Price: (mappings[3] !== undefined && sample[mappings[3]] !== "") ? Number(sample[mappings[3]]) || null : null,
-        Quantity: (mappings[4] !== undefined && sample[mappings[4]] !== "") ? Number(sample[mappings[4]]) || null : null,
+        Price: (mappings[3] !== undefined && sample[mappings[3]] !== "") ? castStringToNumber(sample[mappings[3]] as string) || null : null,
+        Quantity: (mappings[4] !== undefined && sample[mappings[4]] !== "") ? castStringToNumber(sample[mappings[4]] as string) || null : null,
         Unit: (mappings[5] !== undefined && sample[mappings[5]] !== "") ? sample[mappings[5]] ?? null : null,
         Matrix: (mappings[6] !== undefined && sample[mappings[6]] !== "") ? sample[mappings[6]] ?? null : null,
         Storage_Temperature: (mappings[7] !== undefined && sample[mappings[7]] !== "") ? sample[mappings[7]] ?? null : null,
-        Freeze_Thaw_Cycles: (mappings[8] !== undefined && sample[mappings[8]] !== "") ? Number(sample[mappings[8]]) || null : null,    
+        Freeze_Thaw_Cycles: (mappings[8] !== undefined && sample[mappings[8]] !== "") ? castStringToNumber(sample[mappings[8]] as string) || null : null,    
         Sample_Condition: (mappings[9] !== undefined && sample[mappings[9]] !== "") ? sample[mappings[9]] ?? null : null,       
         Infectious_Disease_Test_Result: (mappings[10] !== undefined && sample[mappings[10]] !== "") ? sample[mappings[10]] ?? null : null,       
         Gender: (mappings[11] !== undefined && sample[mappings[11]] !== "") ? sample[mappings[11]] ?? null : null,       
-        Age: (mappings[12] !== undefined && sample[mappings[12]] !== "") ? Number(sample[mappings[12]]) || null : null,       
+        Age: (mappings[12] !== undefined && sample[mappings[12]] !== "") ? castStringToNumber(sample[mappings[12]] as string) || null : null,       
         Ethnicity: (mappings[13] !== undefined && sample[mappings[13]] !== "") ? sample[mappings[13]] ?? null : null,       
-        BMI: (mappings[14] !== undefined && sample[mappings[14]] !== "") ? Number(sample[mappings[14]]) || null : null,        
+        BMI: (mappings[14] !== undefined && sample[mappings[14]] !== "") ? castStringToNumber(sample[mappings[14]] as string) || null : null,        
         Lab_Parameter: (mappings[15] !== undefined && sample[mappings[15]] !== "") ? sample[mappings[15]] ?? null : null, 
         Result_Interpretation: (mappings[16] !== undefined && sample[mappings[16]] !== "") ? sample[mappings[16]] ?? null : null,       
         Result_Raw: (mappings[17] !== undefined && sample[mappings[17]] !== "") ? sample[mappings[17]] ?? null : null,        
-        Result_Numerical: (mappings[18] !== undefined && sample[mappings[18]] !== "") ? Number(sample[mappings[18]]) || null : null,        
+        Result_Numerical: (mappings[18] !== undefined && sample[mappings[18]] !== "") ? castStringToNumber(sample[mappings[18]] as string) || null : null,        
         Result_Unit: (mappings[19] !== undefined && sample[mappings[19]] !== "") ? sample[mappings[19]] ?? null : null,       
         Cut_Off_Raw: (mappings[20] !== undefined && sample[mappings[20]] !== "") ? sample[mappings[20]] ?? null : null,       
-        Cut_Off_Numerical: (mappings[21] !== undefined && sample[mappings[21]] !== "") ? Number(sample[mappings[21]]) || null : null,       
+        Cut_Off_Numerical: (mappings[21] !== undefined && sample[mappings[21]] !== "") ? castStringToNumber(sample[mappings[21]] as string) || null : null,       
         Test_Method: (mappings[22] !== undefined && sample[mappings[22]] !== "") ? sample[mappings[22]] ?? null : null,        
         Test_System: (mappings[23] !== undefined && sample[mappings[23]] !== "") ? sample[mappings[23]] ?? null : null,        
         Test_System_Manufacturer: (mappings[24] !== undefined && sample[mappings[24]] !== "") ? sample[mappings[24]] ?? null : null,        
@@ -407,7 +417,7 @@ const Import: React.FC = () => {
         Diagnosis: (mappings[26] !== undefined && sample[mappings[26]] !== "") ? sample[mappings[26]] ?? null : null,        
         Diagnosis_Remarks: (mappings[27] !== undefined && sample[mappings[27]] !== "") ? sample[mappings[27]] ?? null : null,        
         ICD_Code: (mappings[28] !== undefined && sample[mappings[28]] !== "") ? sample[mappings[28]] ?? null : null,        
-        Pregnancy_Week: (mappings[29] !== undefined && sample[mappings[29]] !== "") ? Number(sample[mappings[29]]) || null : null,        
+        Pregnancy_Week: (mappings[29] !== undefined && sample[mappings[29]] !== "") ? castStringToNumber(sample[mappings[29]] as string) || null : null,        
         Pregnancy_Trimester: (mappings[30] !== undefined && sample[mappings[30]] !== "") ? sample[mappings[30]] ?? null : null,        
         Medication: (mappings[31] !== undefined && sample[mappings[31]] !== "") ? sample[mappings[31]] ?? null : null,        
         Therapy: (mappings[32] !== undefined && sample[mappings[32]] !== "") ? sample[mappings[32]] ?? null : null,       
