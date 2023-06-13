@@ -1,10 +1,48 @@
+import React, { useEffect,type SetStateAction, type Dispatch, useState } from "react";
+
 import { signOut } from 'next-auth/react'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
-import React from 'react'
+import { api } from "~/utils/api";
+import { useSession } from "next-auth/react";
+import { type Mapping } from "@prisma/client";
+import { MappingsSchema } from '~/common/mappings/mapping';
+import Link from "next/link";
+import ModalSave from "~/common/mappings/modalSave";
 
-const Sidebar: React.FC = () => {
+type props = {
+  mappings: (number | null)[],
+  setMapping: Dispatch<SetStateAction<(number | null)[]>>
+}
+
+const Sidebar: React.FC<props> = ({mappings, setMapping}) => {
   const router = useRouter()
+  const { data: sessionData } = useSession();
+  const { data: sessionMapping, refetch: refetchMapping } = api.mappings.getAll.useQuery(
+      void{},
+      {
+          enabled: sessionData?.user !== undefined,
+      }
+  );
+
+  //Mapping Presets
+  const [showSave, setShowSave] = useState(false);
+
+  function applyMapping(mapping: Mapping) {
+    try {
+      const parseMapping = MappingsSchema.parse(JSON.parse(mapping.mapping))
+      setMapping(parseMapping)
+  } catch (error){
+      console.error(error)
+      alert("Something went wrong. Please try again.")
+  }
+  }
+
+  useEffect(() => {
+    if(!showSave) {
+      setTimeout(() => void refetchMapping(), 100)      
+    }
+  }, [showSave])
 
   return (
     <div className='min-w-[200px] max-w-[200px] bg-[#164A41] flex flex-col py-5 shadow-2xl shadow-black '>
@@ -17,11 +55,29 @@ const Sidebar: React.FC = () => {
           <hr className='w-full my-3'/>
           <label className='my-2 hover:text-[#F1B24A] transition-all'>Saved</label>
           <div className='flex flex-col pl-5 text-xl font-light break-words overflow-y-auto'>
-            <label className='my-1 hover:text-[#F1B24A] transition-all max-w-[140px]'>Preset</label>
-            <label className='my-1 hover:text-[#F1B24A] transition-all'>Preset</label>
-            <label className='my-1 hover:text-[#F1B24A] transition-all'>Preset</label>
-            <label className='my-1 hover:text-[#F1B24A] transition-all'>Preset</label>
+            {sessionData?.user ? (
+                <div className="mx-5 flex flex-col mt-3 max-h-[50vh] overflow-y-auto text-lg">
+                    {(sessionMapping && sessionMapping.length > 0) ? (
+                        sessionMapping.map((mapping, i) => (
+                            <button
+                                key={i} 
+                                onClick={() => applyMapping(mapping)}                                                  
+                            >
+                                {mapping.name}
+                            </button>
+                        ))
+                    ) : (
+                        <label>No filter found.</label>
+                    )}
+                </div>
+            ): (
+                <div className="px-5 py-3">
+                    <label className="flex flex-col text-center justify-center">Want to save your current filter?<br/> <Link href={"/auth/login"} className="text-blue-700"><b>Sign In</b></Link></label>
+                </div>
+            )}
           </div>
+          <button className='w-[10rem] px-4 py-1 text-lg text-center text-white rounded-r-2xl border-solid border-2 bg-[#9DC88D] border-[#9DC88D] border-l-white' onClick={() => setShowSave(true)}>Save Filter</button>
+          <ModalSave showModal={showSave} setShowModal={setShowSave} mapping={mappings} />
         </div>
         <div className='flex flex-col py-5 px-5 text-2xl items-start font-semibold text-white'>
           <hr className='w-full my-3'/>
