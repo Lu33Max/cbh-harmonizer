@@ -2,47 +2,45 @@ import { useSession } from "next-auth/react";
 import Link from "next/link";
 import React, { type Dispatch, type SetStateAction, useState, useEffect } from "react";
 
-import { IMappings, TableSamples } from "./mapping";
+import { TableSamples } from "./mapping";
 import { api } from "~/utils/api";
 
 type CustomModalProps = {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>,
-  filter: IMappings;
+  mapping: (number | null)[];
 };
 
-const ModalSave: React.FC<CustomModalProps> = ({ showModal, setShowModal , filter}) => {
-     const [filtername, setFiltername] = useState<string>('')
+const ModalSave: React.FC<CustomModalProps> = ({ showModal, setShowModal , mapping}) => {
+     const [mappingName, setMappingName] = useState<string>('')
 
     const { data: sessionData } = useSession();
-    const { data: sessionFilter, refetch: refetchFilter } = api.mappings.getAll.useQuery(
-        {
-            type: TableSamples.normal,
-        }, 
+    const { data: sessionMapping, refetch: refetchMapping } = api.mappings.getAll.useQuery(
+        void{},
         {
             enabled: sessionData?.user !== undefined,
         }
     );
-    const createFilter = api.mappings.create.useMutation()
+    const createMapping = api.mappings.create.useMutation()
 
     useEffect(() => {
         if (showModal) {
-            void refetchFilter()
+            void refetchMapping()
         }
-    }, [showModal, refetchFilter])
+    }, [showModal, refetchMapping])
 
     function onClose() {
         setShowModal(false)
-        setFiltername("")
+        setMappingName("")
     }
 
     function onSubmit() {
-        if(filtername !== ""){
-            if(sessionFilter && sessionFilter.find(e => e.name === filtername) === undefined){
-                createFilter.mutate({ filter: JSON.stringify(filter), name: filtername, type: TableSamples.normal})
+        if(mappingName !== ""){
+            if(sessionMapping && sessionMapping.find(e => e.name === mappingName) === undefined){
+                createMapping.mutate({ mapping: JSON.stringify(mapping), name: mappingName})
 
-                if(!createFilter.isError){
-                    setFiltername("")
+                if(!createMapping.isError){
+                    setMappingName("")
                     setShowModal(false)
                 } else {
                     alert("Something went wrong. Please try again.")
@@ -71,7 +69,7 @@ const ModalSave: React.FC<CustomModalProps> = ({ showModal, setShowModal , filte
                                 {/*body*/}
                                 {sessionData?.user ? (
                                   <div className="relative p-5 flex-auto">
-                                      <input className='border-solid border-black border-2 mx-2 px-2 text-center py-1 rounded-xl text-lg' placeholder="Enter a name" onChange={e => setFiltername(e.target.value)}></input>
+                                      <input className='border-solid border-black border-2 mx-2 px-2 text-center py-1 rounded-xl text-lg' placeholder="Enter a name" onChange={e => setMappingName(e.target.value)}></input>
                                   </div>
                                 ) : (
                                   <div className="px-5 py-3">
@@ -90,7 +88,7 @@ const ModalSave: React.FC<CustomModalProps> = ({ showModal, setShowModal , filte
                                     <button
                                         className="bg-emerald-500 text-white active:bg-emerald-600 font-bold uppercase text-sm px-6 py-3 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                                         type="button"
-                                        onClick={() => {filtername !== "" ? onSubmit() : alert("Please enter a name")}}
+                                        onClick={() => {mappingName !== "" ? onSubmit() : alert("Please enter a name")}}
                                     >
                                         Save Filter
                                     </button>

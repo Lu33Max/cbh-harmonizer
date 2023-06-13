@@ -1,25 +1,25 @@
 import React, { useEffect,type SetStateAction, type Dispatch, useState } from "react";
 
-import { IMappings, TableSamples } from "./mapping";
+import { TableSamples } from "./mapping";
+import { MappingsSchema } from "./mapping";
 import { useSession } from "next-auth/react";
 import { api } from "~/utils/api";
-import { type Samples } from "@prisma/client";
+import { type Mapping } from "@prisma/client";
 import Link from "next/link";
+import { object } from "zod";
 
 type CustomModalProps = {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>,
-  setMapping: Dispatch<SetStateAction<IMappings>>;
+  setMapping: Dispatch<SetStateAction<(number | null)[]>>;
 };
 
 const ModalLoad: React.FC<CustomModalProps> = ({ showModal, setShowModal, setMapping }) => {
-    const [selected, setSelected] = useState<Samples | undefined>()
+    const [selected, setSelected] = useState<Mapping | undefined>()
 
     const { data: sessionData } = useSession();
     const { data: sessionMapping, refetch: refetchMapping } = api.mappings.getAll.useQuery(
-        {
-            type: TableSamples.normal,
-        }, 
+        void{},
         {
             enabled: sessionData?.user !== undefined,
         }
@@ -36,11 +36,15 @@ const ModalLoad: React.FC<CustomModalProps> = ({ showModal, setShowModal, setMap
         setSelected(undefined)
     }
 
+    const replacer = (key:any, value:any) =>
+        typeof value === 'undefined' ? null : value;
+
     function applyMapping() {
         if(selected){
             try {
-                const parseFilter = NormalFilterSchema.parse(JSON.parse(selected.mapping))
-                setMapping(parseFilter)
+                console.log(JSON.parse(selected.mapping, replacer))
+                const parseMapping = MappingsSchema.parse(JSON.parse(selected.mapping, replacer))
+                setMapping(parseMapping)
                 setSelected(undefined)
                 setShowModal(false)
             } catch (error){

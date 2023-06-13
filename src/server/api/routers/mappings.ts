@@ -13,7 +13,7 @@ export const mappingsRouter = createTRPCRouter({
         }),
 
     create: protectedProcedure
-        .input(z.object({ name: z.string(), mapping: z.number().array() }))
+        .input(z.object({ name: z.string(), mapping: z.string() }))
         .mutation(async ({ ctx, input }) => {
             return await ctx.prisma.mapping.create({
                 data: {
