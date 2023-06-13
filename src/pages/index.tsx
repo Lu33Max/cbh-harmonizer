@@ -263,9 +263,23 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
       const slashSeperated = /\d{2}\/\d{2}\/\d{4}/;
       const dotSeperated = /\d{2}\.\d{2}\.\d{4}/;
       const hyphenSeperated = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+      const yearOnly = /^\d{4}$/;
+      const yearAndMonth = /^\d{4}-\d{2}$/;
+      const yearAndMonthSlashSeperated = /^\d{4}\/\d{2}$/;
+      const yearAndMonthDotSeperated = /^\d{4}\.\d{2}$/;
+      const monthAndDaySwitchedSlashSeperated = /\d{2}\/\d{2}\/\d{4}/;
+      const monthAndDaySwitchedDotSeperated = /\d{2}\.\d{2}\.\d{4}/;
+      const monthAndYear = /\d{2}$-\d{4}$/;
+      const monthAndYearSlashSeperated = /\d{2}$\/\d{4}$/;
+      const monthAndYearDotSeperated = /\d{2}$\.\d{4}$/;
 
       if (slashSeperated.test(dateValue)) {
         const [month, day, year] = dateValue.split("/");
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
+      }
+
+      if (monthAndDaySwitchedSlashSeperated.test(dateValue)) {
+        const [day, month, year] = dateValue.split("/");
         return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
       }
 
@@ -274,8 +288,47 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
       }
 
+      if (monthAndDaySwitchedDotSeperated.test(dateValue)) {
+        const [month, day, year] = dateValue.split(".");
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
+      }
+
       if (hyphenSeperated.test(dateValue)) {
         return new Date(dateValue);
+      }
+
+      if (yearOnly.test(dateValue)) {
+        return new Date(`${dateValue}-01-01T00:00:00`);
+      }
+
+      if (yearAndMonth.test(dateValue)) {
+        const [year, month] = dateValue.split("-");
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+      }
+
+      if (yearAndMonthSlashSeperated.test(dateValue)) {
+        const [year, month] = dateValue.split("/");
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+      }
+
+      if (yearAndMonthDotSeperated.test(dateValue)) {
+        const [year, month] = dateValue.split(".");
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+      }
+
+      if (monthAndYear.test(dateValue)) {
+        const [month, year] = dateValue.split("-");
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+      }
+
+      if (monthAndYearSlashSeperated.test(dateValue)) {
+        const [month, year] = dateValue.split("/");
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+      }
+
+      if (monthAndYearDotSeperated.test(dateValue)) {
+        const [month, year] = dateValue.split(".");
+        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
       }
 
       return null;
