@@ -1,9 +1,9 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
 import { api } from "~/utils/api";
 import Excel from 'exceljs';
-import { type Samples } from "@prisma/client";
+import { Mapping, type Samples } from "@prisma/client";
 import cuid from "cuid";
 import { SampleSchema } from "~/common/database/samples";
 import Sidebar from "~/components/sidebar";
@@ -15,6 +15,7 @@ import { MappingsSchema } from "~/common/mappings/mapping";
 
 const Home: NextPage = () => {
   const { data: session } = useSession()
+  const [mappings, setMappings] = useState<(number | null)[]>([])
 
   if(!session){
     return (
@@ -26,13 +27,18 @@ const Home: NextPage = () => {
 
   return (
     <div className="flex flex-row max-w-[100vw] max-h-[100vh] overflow-x-hidden overflow-y-hidden font-poppins">
-      <Sidebar/>
-      <Import/>
+      <Sidebar mappings={mappings} setMapping={setMappings} />
+      <Import mappings={mappings} setMappings={setMappings}/>
     </div>
   )
 }
 
-const Import: React.FC = () => {
+type props = {
+  mappings: (number | null)[],
+  setMappings: Dispatch<SetStateAction<(number | null)[]>>
+}
+
+const Import: React.FC<props> = ({mappings, setMappings}) => {
   // General Table
   const [pagelength,] = useState<number>(100)
   const [search, setSearch] = useState<string>("")
@@ -54,14 +60,9 @@ const Import: React.FC = () => {
   const [rawSamples, setRawSamples] = useState<string[][]>([])
   const [newSamples, setNewSamples] = useState<Samples[]>([])
   const [errorSamples, setErrorSamples] = useState<Samples[]>([])
-  const [mappings, setMappings] = useState<(number | null)[]>([])
   const [donorNumber, setDonorNumber] = useState<number>(0)
   const [masterNumber, setMasterNumber] = useState<number>(0)
   const [sampleNumber, setSampleNumber] = useState<number>(0)
-
-  //Mapping Presets
-  const [showSave, setShowSave] = useState(false);
-  const [showLoad, setShowLoad] = useState(false);
 
   type SampleKey = keyof typeof newSamples[0];
 
@@ -535,13 +536,8 @@ const Import: React.FC = () => {
             </div>
           </div>
           <div className='flex flex-row w-[50%] justify-end'>
-            <button className='w-[10rem] px-4 py-1 text-lg text-center text-white rounded-l-2xl border-solid border-2 bg-[#9DC88D] border-[#9DC88D]' onClick={() => setShowLoad(true)}>Load Filter</button>
-            <button className='w-[10rem] px-4 py-1 text-lg text-center text-white rounded-r-2xl border-solid border-2 bg-[#9DC88D] border-[#9DC88D] border-l-white' onClick={() => setShowSave(true)}>Save Filter</button>
           </div>
-              <ModalSave showModal={showSave} setShowModal={setShowSave} mapping={mappings} />
-              <ModalLoad showModal={showLoad} setShowModal={setShowLoad} setMapping={setMappings} />
         </div>
-
         <div className="flex flex-row w-full justify-center">
           <button className="bg-[#4D774E] hover:bg-[#7da37d] w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-xl" onClick={mapColumns}>Apply Mappings</button>
         </div>
@@ -592,12 +588,6 @@ const Import: React.FC = () => {
           </table>
           </div>
         </div>
-
-        <>
-          <ModalSave showModal={showSave} setShowModal={setShowSave} mapping={mappings}/>
-          <ModalLoad showModal={showLoad} setShowModal={setShowLoad} setMapping={setMappings}/>
-        </>
-
         <div className="flex flex-row w-full justify-center">
           <button className="bg-[#4D774E] hover:bg-[#7da37d] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-xl" onClick={onSubmit}>Submit</button>
         </div>

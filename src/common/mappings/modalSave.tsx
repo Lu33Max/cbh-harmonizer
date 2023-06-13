@@ -69,7 +69,7 @@ const ModalSave: React.FC<CustomModalProps> = ({ showModal, setShowModal , mappi
                                 {/*body*/}
                                 {sessionData?.user ? (
                                   <div className="relative p-5 flex-auto">
-                                      <input className='border-solid border-black border-2 mx-2 px-2 text-center py-1 rounded-xl text-lg' placeholder="Enter a name" onChange={e => setMappingName(e.target.value)}></input>
+                                      <input className='border-solid text-black border-black border-2 mx-2 px-2 text-center py-1 rounded-xl text-lg' placeholder="Enter a name" onChange={e => setMappingName(e.target.value)}></input>
                                   </div>
                                 ) : (
                                   <div className="px-5 py-3">

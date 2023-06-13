@@ -36,14 +36,11 @@ const ModalLoad: React.FC<CustomModalProps> = ({ showModal, setShowModal, setMap
         setSelected(undefined)
     }
 
-    const replacer = (key:any, value:any) =>
-        typeof value === 'undefined' ? null : value;
-
-    function applyMapping() {
+    function applyMapping(mapping: Mapping) {
         if(selected){
             try {
-                console.log(JSON.parse(selected.mapping, replacer))
-                const parseMapping = MappingsSchema.parse(JSON.parse(selected.mapping, replacer))
+                console.log(JSON.parse(selected.mapping))
+                const parseMapping = MappingsSchema.parse(JSON.parse(mapping.mapping))
                 setMapping(parseMapping)
                 setSelected(undefined)
                 setShowModal(false)
@@ -72,9 +69,9 @@ const ModalLoad: React.FC<CustomModalProps> = ({ showModal, setShowModal, setMap
                                         {(sessionMapping && sessionMapping.length > 0) ? (
                                             sessionMapping.map((mapping, i) => (
                                                 <button
-                                                    key={i}
-                                                    onClick={() => setSelected(mapping)}
-                                                    className={`rounded-2xl my-1 py-1 ${mapping.name === selected?.name ? "bg-[#9DC88D]" : "bg-slate-100"}`}
+                                                    key={i} 
+                                                    onClick={() => applyMapping(mapping)}
+                                                    className={`rounded-2xl my-1 py-1 ${mapping.name === selected?.name ? "bg-[#9DC88D]" : "bg-slate-100"}`}                                                    
                                                 >
                                                     {mapping.name}
                                                 </button>
@@ -96,13 +93,6 @@ const ModalLoad: React.FC<CustomModalProps> = ({ showModal, setShowModal, setMap
                                         onClick={onClose}
                                     >
                                         Close
-                                    </button>
-                                    <button
-                                        className="mb-1 mr-1 rounded bg-emerald-500 px-6 py-3 text-sm font-bold uppercase text-white shadow outline-none transition-all duration-150 ease-linear hover:shadow-lg focus:outline-none active:bg-emerald-600"
-                                        type="button"
-                                        onClick={applyMapping}
-                                    >
-                                        Load
                                     </button>
                                 </div>
                             </div>
