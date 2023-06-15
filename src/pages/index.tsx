@@ -1,17 +1,14 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import React, { useState, useEffect, Dispatch, SetStateAction } from "react";
+import React, { useState, useEffect, type Dispatch, type SetStateAction } from "react";
 import { api } from "~/utils/api";
 import Excel from 'exceljs';
-import { Mapping, type Samples } from "@prisma/client";
+import { type Samples } from "@prisma/client";
 import cuid from "cuid";
-import { SampleSchema } from "~/common/database/samples";
+import { ExampleSample, SampleSchema } from "~/common/database/samples";
 import Sidebar from "~/components/sidebar";
-import { signIn, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
 import { Login } from "~/components/login";
-import ModalSave from "~/common/mappings/modalSave"; 
-import ModalLoad from "~/common/mappings/modalLoad";
-import { MappingsSchema } from "~/common/mappings/mapping";
 
 const Home: NextPage = () => {
   const { data: session } = useSession()
@@ -40,12 +37,10 @@ type props = {
 
 const Import: React.FC<props> = ({mappings, setMappings}) => {
   // General Table
-  const [pagelength,] = useState<number>(100)
   const [search, setSearch] = useState<string>("")
 
   // API Requests
   const upload = api.samples.create.useMutation()
-  const uploadMany = api.samples.createMany.useMutation()
   const createDonorID = api.donoridmapping.create.useMutation()
   const createMasterID = api.masteridmapping.create.useMutation()
   const createSampleID = api.sampleidmapping.create.useMutation()
@@ -231,9 +226,6 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
   function mapColumns (): void {
     const objectsToCreate: Samples[] = [];
 
-    // Wenn wir eine neue ID erstellen, aber sich nachfolgend im Input Array noch weitere Einträge mit gleicher AusgangsID befinden, so würden diese alle auf unterschiedliche IDs gemappt
-    // werden, weil die Datenbank in der ZWischenzeit nicht nochmal gefetcht wird. Deswegen werden temporär alle neuen Arrays schonmal in ein lokales Array geschrieben, während sie
-    // parallel zusätzlich noch in der Datenbank ergänzt werden
     const tempDonorIDs = donorIDs ? [...donorIDs] : []
     const tempMasterIDs = masterIDs ? [...masterIDs] : []
     const tempSampleIDs = sampleIDs ? [...sampleIDs] : []
@@ -259,7 +251,10 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
       return isEmpty;
     };*/
 
-    function parseDate(dateValue: string): Date | null{
+    function parseDate(input: string[], index: number): (Date | null){
+      const col = mappings[index]
+      const dateValue: string = col && input[col] ? input[col] ?? "" : ""
+
       const slashSeperated = /\d{2}\/\d{2}\/\d{4}/;
       const dotSeperated = /\d{2}\.\d{2}\.\d{4}/;
       const hyphenSeperated = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
@@ -339,10 +334,14 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
     let tempSampleNumber = sampleNumber
 
     // Die Funktionen sind jetzt in die mapColumns Method egewandert, um Zugriff die IDs und Arrays über sch zu haben
-    function donorMapping (donorID: string | undefined, inputID: string | undefined): string {
-      if(donorID !== undefined)
+    function donorMapping(input: string[], index: number): (string | null) {
+      const col = mappings[index]
+      const donorID = tempDonorIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Donor_ID ===  input[col] ?? null : false);
+      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
+
+      if(donorID?.Mapped_Donor_ID !== undefined)
       {
-        return donorID;
+        return donorID.Mapped_Donor_ID;
       } 
       else 
       {
@@ -350,9 +349,8 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         tempDonorNumber++
   
         // Test, if the input had an ID assigned and only then create a new mapping
-        if(inputID !== undefined){
+        if(inputID !== null){
           tempDonorIDs.push({id: "", Input_Donor_ID: inputID, Mapped_Donor_ID: newDonorID})
-          // API Request to create new entry here
           
           try {
             createDonorID.mutate({
@@ -371,10 +369,14 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
       }
     }
   
-    function masterMapping (masterID: string | undefined, inputID: string | undefined): string {
-      if(masterID !== undefined)
+    function masterMapping(input: string[], index: number): (string | null) {
+      const col = mappings[index]
+      const masterID = tempMasterIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Master_ID === input[col] ?? null : false);
+      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
+
+      if(masterID?.Mapped_Master_ID !== undefined)
       {
-        return masterID;
+        return masterID.Mapped_Master_ID;
       }
       else 
       {
@@ -382,15 +384,15 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         tempMasterNumber++
   
         // Test, if the input had an ID assigned and only then create a new mapping
-        if(inputID !== undefined){
+        if(inputID !== null){
           tempMasterIDs.push({id: "", Input_Master_ID: inputID, Mapped_Master_ID: newMasterID})
-          // API Request to create new entry here
+
           try {
             createMasterID.mutate({
               Input_Master_ID: inputID,
               Mapped_Master_ID: newMasterID,
             });
-            
+
             return newMasterID;
           }catch (error) {
             console.error('API request error:', error);
@@ -401,9 +403,13 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
       }
     }
   
-    function sampleMapping (sampleID: string | undefined, inputID: string | undefined): string {
-      if(sampleID !== undefined){
-        return sampleID;
+    function sampleMapping(input: string[], index: number): (string | null) {
+      const col = mappings[index]
+      const sampleID = tempSampleIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Sample_ID === input[col] ?? null : false);
+      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
+
+      if(sampleID?.Mapped_Sample_ID !== undefined){
+        return sampleID.Mapped_Sample_ID;
       }
       else 
       {
@@ -411,9 +417,9 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         tempSampleNumber++
   
         // Test, if the input had an ID assigned and only then create a new mapping
-        if(inputID !== undefined){
+        if(inputID !== null){
           tempSampleIDs.push({id: "", Input_Sample_ID: inputID, Mapped_Sample_ID: newSampleID})
-          // API Request to create new entry here
+
           try {
             createSampleID.mutate({
               Input_Sample_ID: inputID,
@@ -421,7 +427,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
             });
             
             return newSampleID;
-          }catch (error) {
+          } catch (error) {
             console.error('API request error:', error);
             throw error;
           }
@@ -429,70 +435,100 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         return newSampleID;
       }
     }
+
+    function stringMapping(input: string[], index: number): (string | null) {
+      const col = mappings[index]
+      return (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
+    }
+
+    function numberMapping(input: string[], index: number): (number | null) {
+      const col = mappings[index]
+
+      if(col !== undefined && col !== null && input[col] !== ""){
+        if(/^\d+$/.test(input[col] ?? ""))
+        {
+          return Number(input[col])
+        }
+        else
+        {
+          return null
+        }
+      }
+
+      return null
+    }
+
+    function generateID(input: string[], index: number): string {
+      return cuid()
+    }
+
+    const functions = {
+      id: generateID,
+      CBH_Donor_ID: donorMapping,
+      CBH_Master_ID: masterMapping,
+      CBH_Sample_ID: sampleMapping,
+      Price: numberMapping,
+      Quantity: numberMapping,
+      Unit: stringMapping,
+      Matrix: stringMapping,
+      Storage_Temperature: stringMapping,
+      Freeze_Thaw_Cycles: numberMapping,
+      Sample_Condition: stringMapping,
+      Infectious_Disease_Test_Result: stringMapping,
+      Gender: stringMapping,
+      Age: numberMapping,
+      Ethnicity: stringMapping,
+      BMI: numberMapping,
+      Lab_Parameter: stringMapping,
+      Result_Interpretation: stringMapping,
+      Result_Raw: stringMapping,
+      Result_Numerical: numberMapping,
+      Result_Unit: stringMapping,
+      Cut_Off_Raw: stringMapping,
+      Cut_Off_Numerical: numberMapping,
+      Test_Method: stringMapping,
+      Test_System: stringMapping,
+      Test_System_Manufacturer: stringMapping,
+      Result_Obtained_From: stringMapping,
+      Diagnosis: stringMapping,
+      Diagnosis_Remarks: stringMapping,
+      ICD_Code: stringMapping,
+      Pregnancy_Week: numberMapping,
+      Pregnancy_Trimester: stringMapping,
+      Medication: stringMapping,
+      Therapy: stringMapping,
+      Histological_Diagnosis: stringMapping,
+      Organ: stringMapping,
+      Disease_Presentation: stringMapping,
+      TNM_Class_T: stringMapping,
+      TNM_Class_N: stringMapping,
+      TNM_Class_M: stringMapping,
+      Tumour_Grade: stringMapping,
+      Tumour_Stage: stringMapping,
+      Viable_Cells__per_: stringMapping,
+      Necrotic_Cells__per_: stringMapping,
+      Tumour_Cells__per_: stringMapping,
+      Proliferation_Rate__Ki67_per_: stringMapping,
+      Estrogen_Receptor: stringMapping,
+      Progesteron_Receptor: stringMapping,
+      HER_2_Receptor: stringMapping,
+      Other_Gene_Mutations: stringMapping,
+      Country_of_Collection: stringMapping,
+      Date_of_Collection: parseDate,
+      Procurement_Type: stringMapping,
+      Informed_Consent: stringMapping,
+    }
+
+    type FunctionKeys = keyof typeof functions
   
     rawSamples.forEach(sample => {
-      const donorID = tempDonorIDs.find(c => (mappings[0] !== undefined && mappings[0] !== null && sample[mappings[0]] !== "") ? c.Input_Donor_ID ===  sample[mappings[0]] ?? null : false);
-      const masterID = tempMasterIDs.find(c => (mappings[1] !== undefined && mappings[1] !== null && sample[mappings[1]] !== "") ? c.Input_Master_ID ===  sample[mappings[1]] ?? null : false);
-      const sampleID = tempSampleIDs.find(c => (mappings[2] !== undefined && mappings[2] !== null && sample[mappings[2]] !== "") ? c.Input_Sample_ID ===  sample[mappings[2]] ?? null : false);
+      let newObject: Samples = ExampleSample
 
-      const dateValue = (mappings[50] !== undefined && mappings[50] !== null && sample[mappings[50]] !== "") ? new Date(String(sample[mappings[50]])) ?? null : null;
-  
-      const newObject = {
-        id: cuid(),
-        CBH_Donor_ID: donorMapping(donorID?.Mapped_Donor_ID, (mappings[0] !== undefined && mappings[0] !== null && sample[mappings[0]] !== "") ? sample[mappings[0]] : undefined && mappings[0] !== null),
-        CBH_Master_ID: masterMapping(masterID?.Mapped_Master_ID, (mappings[1] !== undefined && mappings[1] !== null && sample[mappings[1]] !== "") ? sample[mappings[1]] : undefined && mappings[0] !== null),
-        CBH_Sample_ID: sampleMapping(sampleID?.Mapped_Sample_ID, (mappings[2] !== undefined && mappings[2] !== null && sample[mappings[2]] !== "") ? sample[mappings[2]] : undefined && mappings[0] !== null),
-        Price: (mappings[3] !== undefined && mappings[3] !== null && sample[mappings[3]] !== "") ? Number(sample[mappings[3]]) || null : null,
-        Quantity: (mappings[4] !== undefined && mappings[4] !== null && sample[mappings[4]] !== "") ? Number(sample[mappings[4]]) || null : null,
-        Unit: (mappings[5] !== undefined && mappings[5] !== null && sample[mappings[5]] !== "") ? sample[mappings[5]] ?? null : null,
-        Matrix: (mappings[6] !== undefined && mappings[6] !== null && sample[mappings[6]] !== "") ? sample[mappings[6]] ?? null : null,
-        Storage_Temperature: (mappings[7] !== undefined && mappings[7] !== null && sample[mappings[7]] !== "") ? sample[mappings[7]] ?? null : null,
-        Freeze_Thaw_Cycles: (mappings[8] !== undefined && mappings[8] !== null && sample[mappings[8]] !== "") ? Number(sample[mappings[8]]) || null : null,    
-        Sample_Condition: (mappings[9] !== undefined && mappings[9] !== null && sample[mappings[9]] !== "") ? sample[mappings[9]] ?? null : null,       
-        Infectious_Disease_Test_Result: (mappings[10] !== undefined && mappings[10] !== null && sample[mappings[10]] !== "") ? sample[mappings[10]] ?? null : null,       
-        Gender: (mappings[11] !== undefined && mappings[11] !== null && sample[mappings[11]] !== "") ? sample[mappings[11]] ?? null : null,       
-        Age: (mappings[12] !== undefined && mappings[12] !== null && sample[mappings[12]] !== "") ? Number(sample[mappings[12]]) || null : null,       
-        Ethnicity: (mappings[13] !== undefined && mappings[13] !== null && sample[mappings[13]] !== "") ? sample[mappings[13]] ?? null : null,       
-        BMI: (mappings[14] !== undefined && mappings[14] !== null && sample[mappings[14]] !== "") ? Number(sample[mappings[14]]) || null : null,        
-        Lab_Parameter: (mappings[15] !== undefined && mappings[15] !== null && sample[mappings[15]] !== "") ? sample[mappings[15]] ?? null : null, 
-        Result_Interpretation: (mappings[16] !== undefined && mappings[16] !== null && sample[mappings[16]] !== "") ? sample[mappings[16]] ?? null : null,       
-        Result_Raw: (mappings[17] !== undefined && mappings[17] !== null && sample[mappings[17]] !== "") ? sample[mappings[17]] ?? null : null,        
-        Result_Numerical: (mappings[18] !== undefined && mappings[18] !== null && sample[mappings[18]] !== "") ? Number(sample[mappings[18]]) || null : null,        
-        Result_Unit: (mappings[19] !== undefined && mappings[19] !== null && sample[mappings[19]] !== "") ? sample[mappings[19]] ?? null : null,       
-        Cut_Off_Raw: (mappings[20] !== undefined && mappings[20] !== null && sample[mappings[20]] !== "") ? sample[mappings[20]] ?? null : null,       
-        Cut_Off_Numerical: (mappings[21] !== undefined && mappings[21] !== null && sample[mappings[21]] !== "") ? Number(sample[mappings[21]]) || null : null,       
-        Test_Method: (mappings[22] !== undefined && mappings[22] !== null && sample[mappings[22]] !== "") ? sample[mappings[22]] ?? null : null,        
-        Test_System: (mappings[23] !== undefined && mappings[23] !== null && sample[mappings[23]] !== "") ? sample[mappings[23]] ?? null : null,        
-        Test_System_Manufacturer: (mappings[24] !== undefined && mappings[24] !== null && sample[mappings[24]] !== "") ? sample[mappings[24]] ?? null : null,        
-        Result_Obtained_From: (mappings[25] !== undefined && mappings[25] !== null && sample[mappings[25]] !== "") ? sample[mappings[25]] ?? null : null,        
-        Diagnosis: (mappings[26] !== undefined && mappings[26] !== null && sample[mappings[26]] !== "") ? sample[mappings[26]] ?? null : null,        
-        Diagnosis_Remarks: (mappings[27] !== undefined && mappings[27] !== null && sample[mappings[27]] !== "") ? sample[mappings[27]] ?? null : null,        
-        ICD_Code: (mappings[28] !== undefined && mappings[28] !== null && sample[mappings[28]] !== "") ? sample[mappings[28]] ?? null : null,        
-        Pregnancy_Week: (mappings[29] !== undefined && mappings[29] !== null && sample[mappings[29]] !== "") ? Number(sample[mappings[29]]) || null : null,        
-        Pregnancy_Trimester: (mappings[30] !== undefined && mappings[30] !== null && sample[mappings[30]] !== "") ? sample[mappings[30]] ?? null : null,        
-        Medication: (mappings[31] !== undefined && mappings[31] !== null && sample[mappings[31]] !== "") ? sample[mappings[31]] ?? null : null,        
-        Therapy: (mappings[32] !== undefined && mappings[32] !== null && sample[mappings[32]] !== "") ? sample[mappings[32]] ?? null : null,       
-        Histological_Diagnosis: (mappings[33] !== undefined && mappings[33] !== null && sample[mappings[33]] !== "") ? sample[mappings[33]] ?? null : null,       
-        Organ: (mappings[34] !== undefined && mappings[34] !== null && sample[mappings[34]] !== "") ? sample[mappings[34]] ?? null : null,        
-        Disease_Presentation: (mappings[35] !== undefined && mappings[35] !== null && sample[mappings[35]] !== "") ? sample[mappings[35]] ?? null : null,        
-        TNM_Class_T: (mappings[36] !== undefined && mappings[36] !== null && sample[mappings[36]] !== "") ? sample[mappings[36]] ?? null : null,       
-        TNM_Class_N: (mappings[37] !== undefined && mappings[37] !== null && sample[mappings[37]] !== "") ? sample[mappings[37]] ?? null : null,        
-        TNM_Class_M: (mappings[38] !== undefined && mappings[38] !== null && sample[mappings[38]] !== "") ? sample[mappings[38]] ?? null : null,        
-        Tumour_Grade: (mappings[39] !== undefined && mappings[39] !== null && sample[mappings[39]] !== "") ? sample[mappings[39]] ?? null : null,        
-        Tumour_Stage: (mappings[40] !== undefined && mappings[40] !== null && sample[mappings[40]] !== "") ? sample[mappings[40]] ?? null : null,        
-        Viable_Cells__per_: (mappings[41] !== undefined && mappings[41] !== null && sample[mappings[41]] !== "") ? sample[mappings[41]] ?? null : null,       
-        Necrotic_Cells__per_: (mappings[42] !== undefined && mappings[42] !== null && sample[mappings[42]] !== "") ? sample[mappings[42]] ?? null : null,       
-        Tumour_Cells__per_: (mappings[43] !== undefined && mappings[43] !== null && sample[mappings[43]] !== "") ? sample[mappings[43]] ?? null : null,        
-        Proliferation_Rate__Ki67_per_: (mappings[44] !== undefined && mappings[44] !== null && sample[mappings[44]] !== "") ? sample[mappings[44]] ?? null : null,        
-        Estrogen_Receptor: (mappings[45] !== undefined && mappings[45] !== null && sample[mappings[45]] !== "") ? sample[mappings[45]] ?? null : null,        
-        Progesteron_Receptor: (mappings[46] !== undefined && mappings[46] !== null && sample[mappings[46]] !== "") ? sample[mappings[46]] ?? null : null,        
-        HER_2_Receptor: (mappings[47] !== undefined && mappings[47] !== null && sample[mappings[47]] !== "") ? sample[mappings[47]] ?? null : null,        
-        Other_Gene_Mutations: (mappings[48] !== undefined && mappings[48] !== null && sample[mappings[48]] !== "") ? sample[mappings[48]] ?? null : null,        
-        Country_of_Collection: (mappings[49] !== undefined && mappings[49] !== null && sample[mappings[49]] !== "") ? sample[mappings[49]] ?? null : null,       
-        Date_of_Collection: dateValue,       
-        Procurement_Type: (mappings[51] !== undefined && mappings[51] !== null && sample[mappings[51]] !== "") ? sample[mappings[51]] ?? null : null,
-        Informed_Consent: (mappings[52] !== undefined && mappings[52] !== null && sample[mappings[52]] !== "") ? sample[mappings[52]] ?? null : null,
-      }
+      // Loop over every property of sample and execute according mapping method
+      Object.getOwnPropertyNames(newObject).map((col, i) => {
+        const mapper = getProperty(functions, col as FunctionKeys)
+        newObject = {...newObject, [col]: mapper(sample, i-1)}
+      })
 
       try {
         SampleSchema.parse(newObject)
@@ -586,12 +622,6 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
 
       <main className="flex min-h-screen flex-col pl-5 pr-10 py-5 text-lg max-w-[100vw] overflow-x-hidden overflow-y-scroll">
         <h1 className="text-6xl font-semibold text-[#164A41] mb-5">Upload</h1>
-        
-        {/*<div className="flex flex-row gap-3 mx-4">
-          <input type="file" accept=".xlsx,.csv" onChange={(e) => setInput(e.target.files !== null ? e.target.files[0] : undefined)}></input>
-          <input type="number" onChange={(e) => setStartRow(Number(e.target.value) ?? 1)} className="border-2 border-black py-1" placeholder="Start Column"></input>
-          <button onClick={readFile} className="bg-green-300 rounded-xl px-3 py-1">Read File</button>
-        </div>*/}
 
         <p>
           Here you can upload your Excel or csv data into the database of Central BioHub. Simply follow all of the steps bellow and press Submit at the end of the page. Your data will be automatically converted into the specified format und uploaded directly into the database.
