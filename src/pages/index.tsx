@@ -68,6 +68,8 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
   const [masterNumber, setMasterNumber] = useState<number>(0)
   const [sampleNumber, setSampleNumber] = useState<number>(0)
 
+  const [dragging, setDragging] = useState(false);
+
   type SampleKey = keyof typeof newSamples[0];
 
   useEffect(() => {
@@ -103,19 +105,39 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
   
   function handleOnDrag(e: React.DragEvent, index: number) {
     e.dataTransfer.setData("index", index.toString());
+    setDragging(true);
   }
 
   function handleOnDrop(e: React.DragEvent, targetIndex: number) {
     const index = Number(e.dataTransfer.getData("index"));
     const tempMappings = [...mappings];
+  
+    // Check if the dropped content should be deleted
+    if (tempMappings[targetIndex] === index) {
+      tempMappings[targetIndex] = null;
+    } else {
+      tempMappings[targetIndex] = index;
+    }
+  
+    setMappings(tempMappings);
+    setDragging(false);
+  }
 
-    tempMappings[targetIndex] = index
-    setMappings(tempMappings)
+  function handleDragEnd(e: React.DragEvent) {
+    setDragging(false);
   }
 
   function handleDragOver(e: React.DragEvent) {
     e.stopPropagation();
-    e.preventDefault();
+    if (dragging) {
+      e.preventDefault();
+    }
+  }
+
+  function handleDelete(index: number) {
+    const tempMappings = [...mappings];
+    tempMappings[index] = null;
+    setMappings(tempMappings);
   }
 
   function castStringToNumber(inputString: string): number {
@@ -640,7 +662,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         <div>
           <div className="flex flex-wrap flex-row ml-36 my-5 justify-center gap-2">
             {header.map((head, index) => (
-              <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)} className={` px-3 py-1 rounded-2xl ${(search !== "" && head && head.toLowerCase().includes(search)) ? "bg-[rgb(131,182,94)]" : "bg-gray-300"}`}>
+              <div key={index} draggable onDragStart={(e) => handleOnDrag(e, index)} onDragEnd={handleDragEnd} className={` px-3 py-1 rounded-2xl ${(search !== "" && head && head.toLowerCase().includes(search)) ? "bg-[rgb(131,182,94)]" : "bg-gray-300"}`}>
                 {head}
               </div>
             ))}
@@ -670,7 +692,12 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                         <tr key={i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
-                            <div className='min-h-[2rem] h-auto w-[11vw] text-gray-600' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>           
+                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>
+                              <div>
+                                <span>{getColumnName(i - 1)}</span>
+                                <button className="" onClick={() => handleDelete(i - 1)}> x </button>
+                              </div>
+                            </div>           
                           </td>
                         </tr>
                       )
@@ -693,7 +720,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                         <tr key={100 + i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-br-xl" : ""}`}>
-                            <div className='min-h-[2rem] h-auto w-[11vw] text-gray-600' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
+                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
                           </td>
                         </tr>
                       )
@@ -716,7 +743,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                         <tr key={1000 + i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-br-xl" : ""}`}>
-                            <div className='min-h-[2rem] h-auto w-[11vw] text-gray-600' onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
+                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
                           </td>
                         </tr>
                       )
