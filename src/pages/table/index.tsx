@@ -68,6 +68,7 @@ export type TableSamples = {
 
 const Search: NextPage = () => {
   const { data: session } = useSession()
+  const [mappings, setMappings] = useState<(number | null)[]>([])
 
   if(!session){
     return (
@@ -79,7 +80,7 @@ const Search: NextPage = () => {
 
   return (
     <div className="flex flex-row max-w-[100vw] h-screen max-h-[100vh] overflow-x-hidden overflow-y-hidden font-poppins">
-      <Sidebar/>
+      <Sidebar mappings={mappings} setMapping={setMappings}/>
       <Table/>
     </div>
   )
@@ -103,7 +104,6 @@ const Table: React.FC = () => {
     type SampleKey = keyof typeof tableSamples[0];
 
     const [settings, setSettings] = useState<boolean>(false)
-    const [formatting, setFormatting] = useState<boolean>(true)
 
     const defaultColumns = ["CBH_Donor_ID","CBH_Sample_ID","Matrix","Quantity","Unit","Age","Gender","Price"]
     const [activeColumns, setActiveColumns] = useState<string[]>(defaultColumns)
@@ -227,6 +227,7 @@ const Table: React.FC = () => {
         })
       }
       
+      console.log(newArray)
       setTableSamples(newArray)
     }, [samples])
 
@@ -292,43 +293,42 @@ const Table: React.FC = () => {
       }
 
     return (
-        <div className="flex flex-col w-full pl-5 pr-10 py-5 overflow-y-scroll">
-          <h1 className="text-6xl font-semibold text-[#164A41] mb-5">Table View</h1>
+      <div className="flex flex-col w-full pl-5 pr-10 py-5 overflow-y-scroll">
+        <h1 className="text-6xl font-semibold text-[#164A41] mb-5">Table View</h1>
 
-            <div className="flex flex-row w-full items-center mt-3 mb-2">
-                <Count count={count}/>
-                <div className="mx-auto">
-                    <Footer range={range} page={page} setPage={setPage} />
-                </div>      
-                <ShowRows pagelength={pagelength} setPagelength={setPagelength}/>
-                <button className='text-xl mx-3' onClick={() => setSettings(!settings)}><BiCog/></button>
-            </div>
+        <div className="flex flex-row w-full items-center mt-3 mb-2">
+          <Count count={count}/>
+          <div className="mx-auto">
+              <Footer range={range} page={page} setPage={setPage} />
+          </div>      
+          <ShowRows pagelength={pagelength} setPagelength={setPagelength}/>
+          <button className='text-xl mx-3' onClick={() => setSettings(!settings)}><BiCog/></button>
+        </div>
 
-            {settings && (
-                <div className='my-3'>
-                    <h1 className='text-2xl'>Settings</h1>
-                    {Object.getOwnPropertyNames(tableSamples[0]).map((name, i) => {
-                        if (name !== "id") {
-                            return (
-                                <button key={i} onClick={() => showColumns(name)} disabled={formatting} className={`mx-1 my-1 rounded-lg p-2 ${activeColumns.find(c => c === name)? "bg-[#9DC88D]": "bg-gray-300"}`}>{name.replace(/_/g," ")}</button>
-                            )
-                        }              
-                    })}
-                    <br/>
-                    <button onClick={() => {setActiveColumns(defaultColumns); setTempColumns(defaultColumns)}} className='w-[10rem] px-4 py-1 text-lg text-center text-white rounded-2xl border-solid border-2 bg-orange-300 border-orange-300'>Reset</button>
-                </div>
-            )}
-
+        {settings && (
+          <div className='my-3'>
+            <h1 className='text-2xl'>Settings</h1>
+            {Object.getOwnPropertyNames(tableSamples[0]).map((name, i) => {
+                if (name !== "id") {
+                    return (
+                        <button key={i} onClick={() => showColumns(name)} className={`mx-1 my-1 rounded-lg p-2 ${activeColumns.find(c => c === name)? "bg-[#9DC88D]": "bg-gray-300"}`}>{name.replace(/_/g," ")}</button>
+                    )
+                }              
+            })}
+            <br/>
+            <button onClick={() => {setActiveColumns(defaultColumns); setTempColumns(defaultColumns)}} className='w-[10rem] px-4 py-1 text-lg text-center text-white rounded-2xl border-solid border-2 bg-orange-300 border-orange-300'>Reset</button>
+          </div>
+        )}
 
         <table className="w-full text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
             <thead>
                 <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight">
                     {activeColumns.map((column, i) => {
                         return(
-                            <th key={i} className="py-2 font-extralight border-dotted border-black border-r-2"><button onClick={() => {sortBy === "" ? setSortBy(column): setSortBy(""); handleSort(column as SampleKey)}}>{column.replace(/_/g," ")}</button></th>
+                            <th key={i} className={`py-2 font-extralight border-dotted border-black border-r-2 ${i === 0 ? "rounded-l-xl" : ""}`}><button onClick={() => {sortBy === "" ? setSortBy(column): setSortBy(""); handleSort(column as SampleKey)}}>{column.replace(/_/g," ")}</button></th>
                         )
                     })}
-                    <th className="py-2 font-extralight">Details</th>
+                    <th className="py-2 font-extralight rounded-r-xl">Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -337,12 +337,12 @@ const Table: React.FC = () => {
                         <tr key={index} className="text-center">
                             {activeColumns.map((column, i) => {
                                 return (
-                                    <td key={i} className="py-2 px-3 bg-gray-300">{getProperty(sample, column as SampleKey)?.toString()}</td>
+                                    <td key={i} className={`py-2 px-3 bg-gray-300 ${i === 0 ? "rounded-l-xl" : ""}`}>{getProperty(sample, column as SampleKey)?.toString()}</td>
                                 )
                             })}
-                             <td className="py-2 px-3 bg-gray-300"><button onClick={() => { updateState(index) }}><BiDetail className="relative top-1" /></button></td>
+                             <td className="py-2 px-3 bg-gray-300 rounded-r-xl"><button onClick={() => { updateState(index) }}><BiDetail className="relative top-1" /></button></td>
                         </tr>
-                        <tr className={`mx-5 ${show[index] ? "" : "hidden"}`}>
+                        <tr className={`mx-5 ${show[index] ? "" : "hidden"} bg-gray-200`}>
                             <td colSpan={2} className="px-5 bg-gray-200">
                                 <div className="grid grid-cols-2">
                                     <strong className="col-span-2">General Data</strong>
@@ -393,12 +393,13 @@ const Table: React.FC = () => {
             </tbody>
         </table>
         <div className="flex flex-row w-full items-center mt-3 mb-2">
-                <div className="mx-auto justify-self-center">
-                    <Footer range={range} page={page} setPage={setPage} />
-                </div>      
-                <ShowRows pagelength={pagelength} setPagelength={setPagelength}/>
-                <button className='text-xl mx-3' onClick={() => setSettings(!settings)}><BiCog/></button>
-            </div>
+          <Count count={count}/>
+          <div className="mx-auto">
+              <Footer range={range} page={page} setPage={setPage} />
+          </div>      
+          <ShowRows pagelength={pagelength} setPagelength={setPagelength}/>
+          <button className='text-xl mx-3' onClick={() => setSettings(!settings)}><BiCog/></button>
+        </div>
       </div>
     )
 }

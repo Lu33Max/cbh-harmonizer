@@ -7,10 +7,35 @@ export const sampleRouter = createTRPCRouter({
     getMany: publicProcedure
         .input(z.object({ lines: z.number().optional(), pages: z.number().optional()}))
         .query(async ({ ctx, input }) => {
-            return ctx.prisma.samples.findMany({
+            const uniqueSampleIDs = await ctx.prisma.samples.findMany({
+                distinct: ['CBH_Sample_ID'],
                 take: input.lines,
                 skip: (input.pages && input.lines) ? (input.pages - 1) * input.lines : 0,
+                orderBy: {
+                    CBH_Sample_ID: 'desc',
+                },
+                select: {
+                    CBH_Sample_ID: true
+                },
             })
+
+            const uniqueSampleIDStrings : string[] = uniqueSampleIDs.map(item => item.CBH_Sample_ID?.toString() ?? "") ?? [];
+
+            return await ctx.prisma.samples.findMany({
+                where: {
+                    CBH_Sample_ID: {
+                        in: uniqueSampleIDStrings,
+                    }
+                },
+                orderBy: {
+                    CBH_Sample_ID: 'desc',
+                },
+            })
+
+            /*return ctx.prisma.samples.findMany({
+                take: input.lines,
+                skip: (input.pages && input.lines) ? (input.pages - 1) * input.lines : 0,
+            })*/
         }),
 
     getAll: publicProcedure
@@ -92,29 +117,29 @@ export const sampleRouter = createTRPCRouter({
         }),
 
     sortDonor: publicProcedure
-    .query(async ({ ctx }) => {
-        return ctx.prisma.samples.findFirst({
-            orderBy: {
-                CBH_Donor_ID: "desc",
-            }
-        });
-    }),
+        .query(async ({ ctx }) => {
+            return ctx.prisma.samples.findFirst({
+                orderBy: {
+                    CBH_Donor_ID: "desc",
+                }
+            });
+        }),
    
     sortMaster: publicProcedure
-    .query(async ({ ctx }) => {
-        return ctx.prisma.samples.findFirst({
-            orderBy: {
-                CBH_Master_ID: "desc",
-            }
-        });
-    }),
+        .query(async ({ ctx }) => {
+            return ctx.prisma.samples.findFirst({
+                orderBy: {
+                    CBH_Master_ID: "desc",
+                }
+            });
+        }),
    
     sortSample: publicProcedure
-    .query(async ({ ctx }) => {
-        return ctx.prisma.samples.findFirst({
-            orderBy: {
-                CBH_Sample_ID: "desc",
-            }
-        });
-    })
+        .query(async ({ ctx }) => {
+            return ctx.prisma.samples.findFirst({
+                orderBy: {
+                    CBH_Sample_ID: "desc",
+                }
+            });
+        })
 })

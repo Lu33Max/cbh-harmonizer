@@ -42,7 +42,7 @@ const Sidebar: React.FC<props> = ({mappings, setMapping}) => {
     if(!showSave) {
       setTimeout(() => void refetchMapping(), 100)      
     }
-  }, [showSave])
+  }, [showSave, refetchMapping])
 
   return (
     <div className='min-w-[200px] max-w-[200px] bg-[#164A41] flex flex-col py-5 shadow-2xl shadow-black '>
@@ -56,7 +56,7 @@ const Sidebar: React.FC<props> = ({mappings, setMapping}) => {
           <label className='my-2 hover:text-[#F1B24A] transition-all'>Saved</label>
           <div className='flex flex-col pl-5 text-xl font-light break-words overflow-y-auto'>
             {sessionData?.user ? (
-                <div className="mx-5 flex flex-col mt-3 max-h-[50vh] overflow-y-auto text-lg">
+                <div className="mx-1 flex flex-col mt-3 max-h-[50vh] overflow-y-auto text-lg">
                     {(sessionMapping && sessionMapping.length > 0) ? (
                         sessionMapping.map((mapping, i) => (
                             <button
@@ -67,7 +67,7 @@ const Sidebar: React.FC<props> = ({mappings, setMapping}) => {
                             </button>
                         ))
                     ) : (
-                        <label>No filter found.</label>
+                        <label>No&nbsp;filter&nbsp;found.</label>
                     )}
                 </div>
             ): (
@@ -76,7 +76,7 @@ const Sidebar: React.FC<props> = ({mappings, setMapping}) => {
                 </div>
             )}
           </div>
-          <button className='w-[10rem] px-4 py-1 text-lg text-center text-white rounded-r-2xl border-solid border-2 bg-[#9DC88D] border-[#9DC88D] border-l-white' onClick={() => setShowSave(true)}>Save Filter</button>
+          <button className='w-[10rem] px-4 py-1 text-lg text-center text-[#164A41] rounded-2xl bg-[#F1B24A] hover:bg-[#fcc368] transition-colors' onClick={() => setShowSave(true)}>Save Filter</button>
           <ModalSave showModal={showSave} setShowModal={setShowSave} mapping={mappings} />
         </div>
         <div className='flex flex-col py-5 px-5 text-2xl items-start font-semibold text-white'>
