@@ -12,7 +12,7 @@ import { Login } from "~/components/login";
 
 const Home: NextPage = () => {
   const { data: session } = useSession()
-  const [mappings, setMappings] = useState<(number | null)[]>([])
+  const [mappings, setMappings] = useState<(number[] | null)[]>([])
 
   if(!session){
     return (
@@ -21,18 +21,19 @@ const Home: NextPage = () => {
       </div>
     )
   }
-
+  
   return (
     <div className="flex flex-row max-w-[100vw] max-h-[100vh] overflow-x-hidden overflow-y-hidden font-poppins">
       <Sidebar mappings={mappings} setMapping={setMappings} />
       <Import mappings={mappings} setMappings={setMappings}/>
     </div>
   )
+  
 }
 
 type props = {
-  mappings: (number | null)[],
-  setMappings: Dispatch<SetStateAction<(number | null)[]>>
+  mappings: (number[] | null)[],
+  setMappings: Dispatch<SetStateAction<(number[] | null)[]>>
 }
 
 const Import: React.FC<props> = ({mappings, setMappings}) => {
@@ -106,16 +107,26 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
   function handleOnDrop(e: React.DragEvent, targetIndex: number) {
     const index = Number(e.dataTransfer.getData("index"));
     const tempMappings = [...mappings];
-  
-    // Check if the dropped content should be deleted
-    if (tempMappings[targetIndex] === index) {
-      tempMappings[targetIndex] = null;
+
+    if (tempMappings[targetIndex] == null) {
+      tempMappings[targetIndex] = []
+      tempMappings[targetIndex]?.push(index)
     } else {
-      tempMappings[targetIndex] = index;
+      if (tempMappings[targetIndex]?.includes(index)) {
+        if (tempMappings[targetIndex]?.length == 1) {
+          tempMappings[targetIndex] = null
+        } else {
+          let temp = tempMappings[targetIndex]?.indexOf(index)
+          tempMappings[targetIndex]?.splice(temp as number,1)
+        }
+      } else {
+        tempMappings[targetIndex]?.push(index)
+      }
     }
   
     setMappings(tempMappings);
     setDragging(false);
+    console.log(mappings)
   }
 
   function handleDragEnd(e: React.DragEvent) {
@@ -463,7 +474,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
       return (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
     }
 
-    function numberMapping(input: string[], index: number): (number | null) {
+    function numberMapping(input: string[], index: number): (number[] | null) {
       const col = mappings[index]
 
       if(col !== undefined && col !== null && input[col] !== ""){
