@@ -11,8 +11,8 @@ import Link from "next/link";
 import ModalSave from "~/common/mappings/modalSave";
 
 type props = {
-  mappings: (number | null)[],
-  setMapping: Dispatch<SetStateAction<(number | null)[]>>
+  mappings: (number[] | null)[],
+  setMapping: Dispatch<SetStateAction<(number[] | null)[]>>
 }
 
 const Sidebar: React.FC<props> = ({mappings, setMapping}) => {
@@ -32,10 +32,10 @@ const Sidebar: React.FC<props> = ({mappings, setMapping}) => {
     try {
       const parseMapping = MappingsSchema.parse(JSON.parse(mapping.mapping))
       setMapping(parseMapping)
-  } catch (error){
-      console.error(error)
-      alert("Something went wrong. Please try again.")
-  }
+    } catch (error){
+        console.error(error)
+        alert("Something went wrong. Please try again.")
+    }
   }
 
   useEffect(() => {

@@ -8,7 +8,7 @@ import { api } from "~/utils/api";
 type CustomModalProps = {
   showModal: boolean;
   setShowModal: Dispatch<SetStateAction<boolean>>,
-  mapping: (number | null)[];
+  mapping: (number[] | null)[];
 };
 
 const ModalSave: React.FC<CustomModalProps> = ({ showModal, setShowModal , mapping}) => {

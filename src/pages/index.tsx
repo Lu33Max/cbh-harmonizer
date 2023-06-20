@@ -126,7 +126,6 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
   
     setMappings(tempMappings);
     setDragging(false);
-    console.log(mappings)
   }
 
   function handleDragEnd(e: React.DragEvent) {
@@ -285,78 +284,81 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
     };*/
 
     function parseDate(input: string[], index: number): (Date | null){
-      const col = mappings[index]
-      const dateValue: string = col && input[col] ? input[col] ?? "" : ""
-
-      const slashSeperated = /\d{2}\/\d{2}\/\d{4}/;
-      const dotSeperated = /\d{2}\.\d{2}\.\d{4}/;
-      const hyphenSeperated = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
-      const yearOnly = /^\d{4}$/;
-      const yearAndMonth = /^\d{4}-\d{2}$/;
-      const yearAndMonthSlashSeperated = /^\d{4}\/\d{2}$/;
-      const yearAndMonthDotSeperated = /^\d{4}\.\d{2}$/;
-      const monthAndDaySwitchedSlashSeperated = /\d{2}\/\d{2}\/\d{4}/;
-      const monthAndDaySwitchedDotSeperated = /\d{2}\.\d{2}\.\d{4}/;
-      const monthAndYear = /\d{2}$-\d{4}$/;
-      const monthAndYearSlashSeperated = /\d{2}$\/\d{4}$/;
-      const monthAndYearDotSeperated = /\d{2}$\.\d{4}$/;
-
-      if (slashSeperated.test(dateValue)) {
-        const [month, day, year] = dateValue.split("/");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
-      }
-
-      if (monthAndDaySwitchedSlashSeperated.test(dateValue)) {
-        const [day, month, year] = dateValue.split("/");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
-      }
-
-      if (dotSeperated.test(dateValue)) {
-        const [day, month, year] = dateValue.split(".");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
-      }
-
-      if (monthAndDaySwitchedDotSeperated.test(dateValue)) {
-        const [month, day, year] = dateValue.split(".");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
-      }
-
-      if (hyphenSeperated.test(dateValue)) {
-        return new Date(dateValue);
-      }
-
-      if (yearOnly.test(dateValue)) {
-        return new Date(`${dateValue}-01-01T00:00:00`);
-      }
-
-      if (yearAndMonth.test(dateValue)) {
-        const [year, month] = dateValue.split("-");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
-      }
-
-      if (yearAndMonthSlashSeperated.test(dateValue)) {
-        const [year, month] = dateValue.split("/");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
-      }
-
-      if (yearAndMonthDotSeperated.test(dateValue)) {
-        const [year, month] = dateValue.split(".");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
-      }
-
-      if (monthAndYear.test(dateValue)) {
-        const [month, year] = dateValue.split("-");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
-      }
-
-      if (monthAndYearSlashSeperated.test(dateValue)) {
-        const [month, year] = dateValue.split("/");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
-      }
-
-      if (monthAndYearDotSeperated.test(dateValue)) {
-        const [month, year] = dateValue.split(".");
-        return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+      const cols = mappings[index]
+      if (cols && cols[0]) {
+        const col = cols[0]
+        const dateValue: string = col && input[col] ? input[col] ?? "" : ""
+  
+        const slashSeperated = /\d{2}\/\d{2}\/\d{4}/;
+        const dotSeperated = /\d{2}\.\d{2}\.\d{4}/;
+        const hyphenSeperated = /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/;
+        const yearOnly = /^\d{4}$/;
+        const yearAndMonth = /^\d{4}-\d{2}$/;
+        const yearAndMonthSlashSeperated = /^\d{4}\/\d{2}$/;
+        const yearAndMonthDotSeperated = /^\d{4}\.\d{2}$/;
+        const monthAndDaySwitchedSlashSeperated = /\d{2}\/\d{2}\/\d{4}/;
+        const monthAndDaySwitchedDotSeperated = /\d{2}\.\d{2}\.\d{4}/;
+        const monthAndYear = /\d{2}$-\d{4}$/;
+        const monthAndYearSlashSeperated = /\d{2}$\/\d{4}$/;
+        const monthAndYearDotSeperated = /\d{2}$\.\d{4}$/;
+  
+        if (slashSeperated.test(dateValue)) {
+          const [month, day, year] = dateValue.split("/");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
+        }
+  
+        if (monthAndDaySwitchedSlashSeperated.test(dateValue)) {
+          const [day, month, year] = dateValue.split("/");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
+        }
+  
+        if (dotSeperated.test(dateValue)) {
+          const [day, month, year] = dateValue.split(".");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
+        }
+  
+        if (monthAndDaySwitchedDotSeperated.test(dateValue)) {
+          const [month, day, year] = dateValue.split(".");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-${day ?? "01"}T00:00:00`);
+        }
+  
+        if (hyphenSeperated.test(dateValue)) {
+          return new Date(dateValue);
+        }
+  
+        if (yearOnly.test(dateValue)) {
+          return new Date(`${dateValue}-01-01T00:00:00`);
+        }
+  
+        if (yearAndMonth.test(dateValue)) {
+          const [year, month] = dateValue.split("-");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+        }
+  
+        if (yearAndMonthSlashSeperated.test(dateValue)) {
+          const [year, month] = dateValue.split("/");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+        }
+  
+        if (yearAndMonthDotSeperated.test(dateValue)) {
+          const [year, month] = dateValue.split(".");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+        }
+  
+        if (monthAndYear.test(dateValue)) {
+          const [month, year] = dateValue.split("-");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+        }
+  
+        if (monthAndYearSlashSeperated.test(dateValue)) {
+          const [month, year] = dateValue.split("/");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+        }
+  
+        if (monthAndYearDotSeperated.test(dateValue)) {
+          const [month, year] = dateValue.split(".");
+          return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
+        }
       }
 
       return null;
@@ -368,7 +370,14 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
 
     // Die Funktionen sind jetzt in die mapColumns Method egewandert, um Zugriff die IDs und Arrays über sch zu haben
     function donorMapping(input: string[], index: number): (string | null) {
-      const col = mappings[index]
+      const cols = mappings[index]
+      let col = 0
+
+      if (cols) {
+        if (cols[0])
+        col = cols[0]
+      }
+
       const donorID = tempDonorIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Donor_ID ===  input[col] ?? null : false);
       const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
 
@@ -403,7 +412,14 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
     }
   
     function masterMapping(input: string[], index: number): (string | null) {
-      const col = mappings[index]
+      const cols = mappings[index]
+      let col = 0
+
+      if (cols) {
+        if (cols[0])
+        col = cols[0]
+      }
+
       const masterID = tempMasterIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Master_ID === input[col] ?? null : false);
       const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
 
@@ -437,7 +453,19 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
     }
   
     function sampleMapping(input: string[], index: number): (string | null) {
-      const col = mappings[index]
+      const cols = mappings[index]
+      let col = 0
+
+      if (cols) {
+        if (cols[0])
+        col = cols[0]
+      }
+
+      if (cols) {
+        for (let i = 0; i < cols.length; i++) {
+          
+        }
+      }
       const sampleID = tempSampleIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Sample_ID === input[col] ?? null : false);
       const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
 
@@ -470,24 +498,38 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
     }
 
     function stringMapping(input: string[], index: number): (string | null) {
-      const col = mappings[index]
-      return (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
-    }
+      const cols = mappings[index]
+      let string = ""
 
-    function numberMapping(input: string[], index: number): (number[] | null) {
-      const col = mappings[index]
+      if (cols) {
+        for (let i = 0; i < cols.length; i++) {
+          let col = cols[i]
 
-      if(col !== undefined && col !== null && input[col] !== ""){
-        if(/^\d+$/.test(input[col] ?? ""))
-        {
-          return Number(input[col])
-        }
-        else
-        {
-          return null
+          string += (col !== undefined && col !== null && input[col] !== "") ? input[col] + " " ?? null : null
         }
       }
 
+      console.log(string)
+
+      return string
+    }
+
+    function numberMapping(input: string[], index: number): (number | null) {
+      const cols = mappings[index]
+      if (cols && cols[0]) {
+        const col = cols[0]
+
+        if(col !== undefined && col !== null && input[col] !== ""){
+          if(/^\d+$/.test(input[col] ?? ""))
+          {
+            return Number(input[col])
+          }
+          else
+          {
+            return null
+          }
+        }
+      }
       return null
     }
 
@@ -633,12 +675,19 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
   }
 
   function getColumnName(index: number) : string {
-    const temp = mappings[index];
-    if (temp !== undefined && temp !== null) {
-      return header[temp] ?? ""
-    } else {
-      return ""
+    const cols = mappings[index];
+    let string = ""
+
+    if (cols) {
+      for (let i = 0; i < cols.length; i++) {
+        let col = cols[i]
+
+        if (i > 0) {string += ","}
+        string += (col !== undefined && col !== null) ? " " + header[col] ?? "" : ""
+      }
     }
+
+    return string
   }
 
   function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
@@ -761,7 +810,12 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                         <tr key={100 + i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-br-xl" : ""}`}>
-                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
+                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>                               
+                              <div>
+                                <span>{getColumnName(i - 1)}</span>
+                                <button className="" onClick={() => handleDelete(i - 1)}> x </button>
+                              </div> 
+                            </div>              
                           </td>
                         </tr>
                       )
@@ -784,7 +838,12 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                         <tr key={1000 + i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-br-xl" : ""}`}>
-                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> {getColumnName(i-1)} </div>              
+                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> 
+                              <div>
+                                <span>{getColumnName(i - 1)}</span>
+                                <button className="" onClick={() => handleDelete(i - 1)}> x </button>
+                              </div>
+                            </div>              
                           </td>
                         </tr>
                       )
