@@ -643,7 +643,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
       </Head>
 
       <main className="flex min-h-screen flex-col pl-5 pr-10 py-5 text-lg max-w-[100vw] overflow-x-hidden overflow-y-scroll">
-        <h1 className="text-6xl font-semibold text-[#164A41] mb-5">Upload</h1>
+        <h1 className="text-6xl font-semibold text-[#164A41] mb-5">UPLOAD TO DATABASE</h1>
 
         <p>
           Here you can upload your Excel or csv data into the database of Central BioHub. Simply follow all of the steps bellow and press Submit at the end of the page. Your data will be automatically converted into the specified format und uploaded directly into the database.
@@ -653,7 +653,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         <div className="grid grid-flow-col grid-cols-10 mt-4 mb-2">
           <div className="flex flex-row justify-center items-center">
             <div className="flex bg-[#4D774E] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
-              <h1 className="text-white text-4xl">1</h1>
+              <h1 className="text-[#4D774E] text-4xl">1</h1>
             </div>
           </div>
           <div className="flex flex-row items-center gap-2 col-span-9">
@@ -678,7 +678,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         <div className="grid grid-flow-col grid-cols-10 mt-8 mb-2">
           <div className="flex flex-row justify-center items-center">
             <div className="flex bg-[#4D774E] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
-              <h1 className="text-white text-4xl">2</h1>
+              <h1 className="text-[#4D774E] text-4xl">2</h1>
             </div>
           </div>
           <div className="flex flex-row items-center gap-2 col-span-9">
