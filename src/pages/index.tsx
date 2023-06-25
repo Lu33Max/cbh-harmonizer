@@ -643,24 +643,28 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
       </Head>
 
       <main className="flex min-h-screen flex-col pl-5 pr-10 py-5 text-lg max-w-[100vw] overflow-x-hidden overflow-y-scroll">
-        <h1 className="text-6xl font-semibold text-[#164A41] mb-5">UPLOAD TO DATABASE</h1>
+      <div className="flex flex-row w-full items-center justify-center ">
+        <div className="w-full border-2 border-solid h-1 border-green-900 rounded-3xl m-5"></div>
+        <h1 className="text-5xl mt-5 ml-5 mb-2 text-green-900 flex-grow flex-shrink-0 whitespace-nowrap"><b>UPLOAD TO DATABASE</b></h1>
+        <div className="w-full border-2 border-solid h-1 border-green-900 rounded-3xl m-5"></div>
+      </div>
 
-        <p>
+        <p className="ml-36 mb-3 text-[#164A41]">
           Here you can upload your Excel or csv data into the database of Central BioHub. Simply follow all of the steps bellow and press Submit at the end of the page. Your data will be automatically converted into the specified format und uploaded directly into the database.
         </p>
 
         {/* Phase 1 */}
         <div className="grid grid-flow-col grid-cols-10 mt-4 mb-2">
           <div className="flex flex-row justify-center items-center">
-            <div className="flex bg-[#4D774E] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
-              <h1 className="text-[#4D774E] text-4xl">1</h1>
+            <div className="flex bg-[#94ce95cf] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+              <h1 className="text-[#164A41] text-4xl">1</h1>
             </div>
           </div>
           <div className="flex flex-row items-center gap-2 col-span-9">
-            <h1 className="text-[#4D774E] text-4xl">Choosing your data</h1>
+            <h1 className="text-[#164A41] text-4xl">Choosing your data</h1>
           </div>  
         </div>
-        <p className="ml-36 mb-3">
+        <p className="ml-36 mb-3 text-[#164A41]">
           Simply choose the file you want to upload. Currently only .xlsx and .csv files are supported. When uploading an Excel file, please also specify in which row your header is placed. This is the row with all column names in it. Once you are done click the &quot;Read File&quot; button to continue with the next step.
         </p>
         <div className="flex flex-row items-center gap-10 ml-36 mt-3 justify-stretch">
@@ -677,15 +681,15 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         {/* Phase 2 */}
         <div className="grid grid-flow-col grid-cols-10 mt-8 mb-2">
           <div className="flex flex-row justify-center items-center">
-            <div className="flex bg-[#4D774E] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
-              <h1 className="text-[#4D774E] text-4xl">2</h1>
+            <div className="flex bg-[#94ce95cf] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+              <h1 className="text-[#164A41] text-4xl">2</h1>
             </div>
           </div>
           <div className="flex flex-row items-center gap-2 col-span-9">
-            <h1 className="text-[#4D774E] text-4xl">Preparing your data for upload</h1>
+            <h1 className="text-[#164A41] text-4xl">Preparing your data for upload</h1>
           </div>  
         </div>
-        <p className="ml-36 mb-3">
+        <p className="ml-36 mb-3 text-[#164A41]">
           Drag and drop the desired column into the matching database column in the tables bellow. You can use the search bar to highlight columns. Once you are done, press the &apos;Apply Mappings&apos; button to proceed to the next stage. Not seeing the correct columns? Try slecting a different starting column in the first step.
         </p>
         {/* Drag and Drop Elements */}
@@ -803,16 +807,16 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         {/* Phase 3 */}
         <div className="grid grid-flow-col grid-cols-10 mt-8 mb-2">
           <div className="flex flex-row justify-center items-center">
-            <div className="flex bg-[#4D774E] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
-              <h1 className="text-white text-4xl">3</h1>
+            <div className="flex bg-[#94ce95cf] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+              <h1 className="text-[#164A41] text-4xl">3</h1>
             </div>
           </div>
           <div className="flex flex-row items-center gap-2 col-span-9">
-            <h1 className="text-[#4D774E] text-4xl">Final check and upload</h1>
+            <h1 className="text-[#164A41] text-4xl">Final check and upload</h1>
           </div>  
         </div>
 
-        <p className="ml-36 mb-3">
+        <p className="ml-36 mb-3 text-[#164A41]">
           Here you can check if all of the columns are mapped correctly. Some mappings do not look correct? Simply go back one step, change your mappings and hit the &apos;Apply Mappings&apos; button again. Once everything is correct, click the &apos;Submit&apos; button at the end of the page and your data will be automatically uploaded.
         </p>
 
