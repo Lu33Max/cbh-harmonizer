@@ -296,7 +296,7 @@ const Table: React.FC = () => {
       <div className="flex flex-col w-full pl-5 pr-10 py-5 overflow-y-scroll">
         <div className="flex flex-row w-full items-center justify-center">
           <div className="w-1/4 border-2 border-solid h-1 border-green-900 rounded-3xl m-5"></div>
-          <h1 className="text-5xl mt-5 ml-5 mb-2 text-green-900 flex-grow flex-shrink-0 whitespace-nowrap"><b>TABLE VIEW</b></h1>
+          <h1 className="mt-5 mx-auto mb-2 text-green-900 whitespace-nowrap text-4xl"><b>TABLE VIEW</b></h1>
           <div className="w-1/4 border-2 border-solid h-1 border-green-900 rounded-3xl m-5"></div>
         </div>
 
