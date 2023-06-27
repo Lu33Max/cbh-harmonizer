@@ -710,13 +710,13 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
           </div>
 
           {/* Mappings Table */}
-          <div className="ml-36 my-5 max-h-[50vh] overflow-y-scroll">
+          <div className="ml-35 my-5 max-h-[50vh] overflow-y-scroll">
             <div className="flex flex-row justify-between">
               <table>
                 <thead>
                   <tr className="text-white">
-                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tl-xl">Database Column</th>
-                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tr-xl">Input Column</th>
+                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tr-xl">Input Column</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -724,8 +724,8 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                     if(i !== 0 && i < Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3)){
                       return(
                         <tr key={i}>
-                          <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
-                          <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
+                          <td className={`bg-[#E6E6E6] text-center border-t-4 border-r-4 border-white px-4 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
+                          <td className={`bg-[#E6E6E6] text-center border-t-4 border-white px-4 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
                             <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 transition-colors ease-in-out ${dragging ? "bg-[rgb(226,226,231)]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>
                               <div>
                                 <span>{getColumnName(i - 1)}</span>
@@ -743,8 +743,8 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
               <table>
                 <thead>
                   <tr className="text-white">
-                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tl-xl">Database Column</th>
-                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tr-xl">Input Column</th>
+                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tr-xl">Input Column</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -752,8 +752,8 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                     if(i >= Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) && i < Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2)){
                       return(
                         <tr key={100 + i}>
-                          <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
-                          <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-br-xl" : ""}`}>
+                          <td className={`bg-[#E6E6E6] text-center border-t-4 border-r-4 border-white px-4 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
+                          <td className={`bg-[#E6E6E6] text-center border-t-4 border-white px-4 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-br-xl" : ""}`}>
                             <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 transition-colors ease-in-out ${dragging ? "bg-[rgb(226,226,231)]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>
                               <div>
                                 <span>{getColumnName(i - 1)}</span>
@@ -771,8 +771,8 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
               <table>
                 <thead>
                   <tr className="text-white">
-                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tl-xl">Database Column</th>
-                    <th className="w-[12vw] font-light bg-[#4D774E] py-1 rounded-tr-xl">Input Column</th>
+                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tr-xl">Input Column</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -780,8 +780,8 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                     if(i >= Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2)){
                       return(
                         <tr key={1000 + i}>
-                          <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
-                          <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
+                          <td className={`bg-[#E6E6E6] text-center border-t-4 border-r-4 border-white px-4 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
+                          <td className={`bg-[#E6E6E6] text-center border-t-4 border-white px-4 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
                             <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 transition-colors ease-in-out ${dragging ? "bg-[rgb(226,226,231)]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>
                               <div>
                                 <span>{getColumnName(i - 1)}</span>
@@ -801,7 +801,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
           </div>
         </div>
         <div className="flex flex-row w-full justify-center">
-          <button className="bg-[#4D774E] hover:bg-[#7da37d] w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-xl" onClick={mapColumns}>Apply Mappings</button>
+          <button className="bg-[#F1B24A] hover:bg-[#ae8c55] w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-[#164A41] rounded-xl" onClick={mapColumns}>Apply Mappings</button>
         </div>
 
         {/* Phase 3 */}
@@ -828,7 +828,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                 {Object.getOwnPropertyNames(SampleSchema.shape).map((name,i) => {
                   if(i > 0){
                     return(
-                      <th key={2000 + i} className={`bg-[#4D774E] whitespace-nowrap font-extralight text-white px-2 py-1 ${i === 1 ? "rounded-tl-xl" : i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "rounded-tr-xl" : ""}`}>{name.replaceAll("_"," ")}</th>
+                      <th key={2000 + i} className={`bg-[#164A41] whitespace-nowrap font-extralight text-white px-4 py-2 ${i === 1 ? "rounded-tl-xl" : i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "rounded-tr-xl" : ""}`}>{name.replaceAll("_"," ")}</th>
                     )
                   }
                 })}
@@ -842,7 +842,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                       {Object.getOwnPropertyNames(SampleSchema.shape).map((name, j) => {
                         if(j > 0){
                           return (
-                            <td key={4000 + j} className="py-2 px-3 bg-gray-300">{getProperty(sample, name as SampleKey)?.toString()}</td>
+                            <td key={4000 + j} className="py-4 px-6 bg-[#E6E6E6]">{getProperty(sample, name as SampleKey)?.toString()}</td>
                           )
                         }
                       })}
@@ -855,7 +855,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
           </div>
         </div>
         <div className="flex flex-row w-full justify-center">
-          <button className="bg-[#4D774E] hover:bg-[#7da37d] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-white rounded-xl" onClick={onSubmit}>Submit</button>
+          <button className="bg-[#F1B24A] hover:bg-[#ae8c55] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-[#164A41] rounded-xl" onClick={onSubmit}>Submit</button>
         </div>
 
         {errorSamples.length > 0 && (
