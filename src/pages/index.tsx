@@ -656,7 +656,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         {/* Phase 1 */}
         <div className="grid grid-flow-col grid-cols-10 mt-4 mb-2">
           <div className="flex flex-row justify-center items-center">
-            <div className="flex bg-[#94ce95cf] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+            <div className="flex bg-[#9DC88D66] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
               <h1 className="text-[#164A41] text-4xl">1</h1>
             </div>
           </div>
@@ -672,16 +672,16 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
             <input type="file" accept=".xlsx,.csv" onChange={(e) => setInput(e.target.files !== null ? e.target.files[0] : undefined)} className="relative m-0 block min-w-10 flex-auto rounded-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-500 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-500 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary"/>
           </div>
           <div className={`flex flex-row items-center ${input?.name.endsWith(".xlsx") ? "text-black" : "text-gray-400"}`}>
-            <label className="bg-neutral-700 py-1 text-white px-3 rounded-l-xl font-extralight whitespace-nowrap">Starting row</label>
+            <label className="bg-[#9DC88D66] hover:bg-[#617e5766] py-1 text-[#164A41] px-3 rounded-l-xl font-extralight whitespace-nowrap">Starting row</label>
             <input type="number" disabled={input?.name.endsWith(".xlsx") ? false : true} onChange={(e) => setStartRow(Number(e.target.value) ?? 1)} className="relative min-w-0 m-0 block min-w-10 flex-auto rounded-r-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-500 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-500 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary" placeholder="Starting row"></input>
           </div>
-          <button onClick={readFile} className="bg-[#4D774E] hover:bg-[#7da37d] transition duration-300 ease-in-out px-5 py-1 w-full text-white rounded-xl">Read File</button>
+          <button onClick={readFile} className="bg-[#F1B24A] hover:bg-[#ae8c55] transition duration-300 ease-in-out px-5 py-1 w-full text-[#164A41] rounded-xl">Read File</button>
         </div>
         
         {/* Phase 2 */}
         <div className="grid grid-flow-col grid-cols-10 mt-8 mb-2">
           <div className="flex flex-row justify-center items-center">
-            <div className="flex bg-[#94ce95cf] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+            <div className="flex bg-[#9DC88D66] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
               <h1 className="text-[#164A41] text-4xl">2</h1>
             </div>
           </div>
@@ -704,7 +704,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
 
           <div className="ml-36 flex flex-row justify-center gap-20">
             <div className="flex flex-row">
-              <label className="bg-neutral-700 py-1 text-white px-3 rounded-l-xl font-extralight whitespace-nowrap">Search</label>
+              <label className="bg-[#9DC88D66] hover:bg-[#617e5766] py-1 text-[#164A41] px-3 rounded-l-xl font-extralight whitespace-nowrap">Search</label>
               <input className="relative min-w-0 m-0 block min-w-10 flex-auto rounded-r-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.32rem] text-base font-normal text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-500 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-500 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary" value={search} onChange={(e) => setSearch(e.target.value)}></input>
             </div>
           </div>
@@ -807,7 +807,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         {/* Phase 3 */}
         <div className="grid grid-flow-col grid-cols-10 mt-8 mb-2">
           <div className="flex flex-row justify-center items-center">
-            <div className="flex bg-[#94ce95cf] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
+            <div className="flex bg-[#9DC88D66] rounded-full w-[4vw] h-[4vw] text-center items-center justify-center">
               <h1 className="text-[#164A41] text-4xl">3</h1>
             </div>
           </div>
