@@ -710,7 +710,7 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
           </div>
 
           {/* Mappings Table */}
-          <div className="ml-35 my-5 max-h-[50vh] overflow-y-scroll">
+          <div className="ml-36 my-5 max-h-[50vh] overflow-y-scroll">
             <div className="flex flex-row justify-between">
               <table>
                 <thead>
