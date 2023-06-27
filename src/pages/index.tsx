@@ -13,6 +13,7 @@ import { Login } from "~/components/login";
 const Home: NextPage = () => {
   const { data: session } = useSession()
   const [mappings, setMappings] = useState<(number[] | null)[]>([])
+  const [delimiters, setDelimiters] = useState<(string | null)[]>([])
 
   if(!session){
     return (
@@ -34,9 +35,11 @@ const Home: NextPage = () => {
 type props = {
   mappings: (number[] | null)[],
   setMappings: Dispatch<SetStateAction<(number[] | null)[]>>
+  delimiters: (string | null)[],
+  setDelimiters: Dispatch<SetStateAction<(string | null)[]>>
 }
 
-const Import: React.FC<props> = ({mappings, setMappings}) => {
+const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimiters}) => {
   // General Table
   const [search, setSearch] = useState<string>("")
 
@@ -143,6 +146,13 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
     const tempMappings = [...mappings];
     tempMappings[index] = null;
     setMappings(tempMappings);
+  }
+
+  function changeDelimiter(delimiter: string, index: number) {
+      const tempDelimiters = [...delimiters];
+
+      tempDelimiters.slice(0, index), delimiter
+      setDelimiters(tempDelimiters)
   }
 
   function castStringToNumber(inputString: string): number {
@@ -461,11 +471,6 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         col = cols[0]
       }
 
-      if (cols) {
-        for (let i = 0; i < cols.length; i++) {
-          
-        }
-      }
       const sampleID = tempSampleIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Sample_ID === input[col] ?? null : false);
       const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
 
@@ -505,11 +510,9 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
         for (let i = 0; i < cols.length; i++) {
           const col = cols[i]
 
-          string += (col !== undefined && col !== null && input[col] !== "") ? `${input[col] ?? ""} ` : null
+          string += (col !== undefined && col !== null && input[col] !== "") ? `${input[col] ?? ""}${delimiters[col]}` : null
         }
       }
-
-      console.log(string)
 
       return string
     }
@@ -697,6 +700,8 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
     return o[propertyName]
   }
 
+  type sampleKey = keyof typeof ExampleSample
+
   return (
     <>
       <Head>
@@ -781,14 +786,27 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                 <tbody>
                   {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
                     if(i !== 0 && i < Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3)){
+                      const type = getProperty(ExampleSample, name as sampleKey )
                       return(
                         <tr key={i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
                             <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 transition-colors ease-in-out ${dragging ? "bg-[rgb(226,226,231)]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>
-                              <div>
-                                <span>{getColumnName(i - 1)}</span>
-                                <button className="text-black mx-2" onClick={() => handleDelete(i - 1)}> x </button>
+                              <div className="flex">
+                                <div className="relative">
+                                <select onChange={(e) => changeDelimiter(e.target.value, i - 1)} className="block appearance-none w-7 py-1 px-1 pr-2 rounded leading-tight focus:outline-none focus:shadow-outline">
+                                    <option value="-">-</option>
+                                    <option value=":">,</option>
+                                    <option value=";">;</option>
+                                  </select>
+                                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-700">
+                                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                      <path d="M10 12l-5-5 1.5-1.5L10 9.79l3.5-3.5L15 7z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                                <div className={`flex-grow ${getColumnName(i - 1) == "" ? "text-gray-400" : "" }`}>{getColumnName(i - 1) != "" ? getColumnName(i - 1) : typeof type == "string" ? "String" : typeof type == "number" ? "Number" : typeof type == "object" ? "Date" : "" }</div>
+                                <button className="ml-auto text-red-800" onClick={() => handleDelete(i - 1)}> x </button>                                 
                               </div>
                             </div>           
                           </td>
@@ -809,15 +827,28 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                 <tbody>
                   {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
                     if(i >= Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) && i < Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2)){
+                      const type = getProperty(ExampleSample, name as sampleKey )
                       return(
                         <tr key={100 + i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-br-xl" : ""}`}>
                             <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>                               
-                              <div>
-                                <span>{getColumnName(i - 1)}</span>
-                                <button className="" onClick={() => handleDelete(i - 1)}> x </button>
-                              </div> 
+                              <div className="flex">
+                                <div className="relative">
+                                  <select onChange={(e) => changeDelimiter(e.target.value, i - 1)} className="block appearance-none w-7 py-1 px-1 pr-2 rounded leading-tight focus:outline-none focus:shadow-outline">
+                                    <option value="-">-</option>
+                                    <option value=":">,</option>
+                                    <option value=";">;</option>
+                                  </select>
+                                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-700">
+                                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                      <path d="M10 12l-5-5 1.5-1.5L10 9.79l3.5-3.5L15 7z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                                <div className={`flex-grow ${getColumnName(i - 1) == "" ? "text-gray-400" : "" }`}>{getColumnName(i - 1) != "" ? getColumnName(i - 1) : typeof type == "string" ? "String" : typeof type == "number" ? "Number" : typeof type == "object" ? "Date" : "" }</div>
+                                <button className="ml-auto text-red-800" onClick={() => handleDelete(i - 1)}> x </button>                            
+                              </div>
                             </div>              
                           </td>
                         </tr>
@@ -837,14 +868,27 @@ const Import: React.FC<props> = ({mappings, setMappings}) => {
                 <tbody>
                   {Object.getOwnPropertyNames(SampleSchema.shape).map((name, i) => {
                     if(i >= Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2)){
+                      const type = getProperty(ExampleSample, name as sampleKey )
                       return(
                         <tr key={1000 + i}>
                           <td className={`bg-gray-300 text-center border-t-2 border-r-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-gray-300 text-center border-t-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-br-xl" : ""}`}>
                             <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> 
-                              <div>
-                                <span>{getColumnName(i - 1)}</span>
-                                <button className="" onClick={() => handleDelete(i - 1)}> x </button>
+                              <div className="flex">
+                                <div className="relative">
+                                <select onChange={(e) => changeDelimiter(e.target.value, i - 1)} className="block appearance-none w-7 py-1 px-1 pr-2 rounded leading-tight focus:outline-none focus:shadow-outline">
+                                    <option value="-">-</option>
+                                    <option value=":">,</option>
+                                    <option value=";">;</option>
+                                  </select>
+                                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center text-gray-700">
+                                    <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                      <path d="M10 12l-5-5 1.5-1.5L10 9.79l3.5-3.5L15 7z" />
+                                    </svg>
+                                  </div>
+                                </div>
+                                <div className={`flex-grow ${getColumnName(i - 1) == "" ? "text-gray-400" : "" }`}>{getColumnName(i - 1) != "" ? getColumnName(i - 1) : typeof type == "string" ? "String" : typeof type == "number" ? "Number" : typeof type == "object" ? "Date" : "" }</div>
+                                <button className="ml-auto text-red-800" onClick={() => handleDelete(i - 1)}> x </button>                                  
                               </div>
                             </div>              
                           </td>
