@@ -383,7 +383,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     let tempSampleNumber = sampleNumber
 
     function donorMapping(input: string[], index: number): string | null {
-      const col = mappings[index][0];
+      const col = mappings[index];
     
       // Find the corresponding donorID in the tempDonorIDs array based on the mapped column value
       const donorID = tempDonorIDs.find((c) =>
@@ -431,7 +431,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     
   
     function masterMapping(input: string[], index: number): string | null {
-      const col = mappings[index][0];
+      const col = mappings[index];
     
       // Find the corresponding masterID in the tempMasterIDs array based on the mapped column value
       const masterID = tempMasterIDs.find((c) =>
@@ -478,7 +478,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     }    
   
     function sampleMapping(input: string[], index: number): string | null {
-      const col = mappings[index][0];
+      const col = mappings[index];
     
       // Find the corresponding sampleID in the tempSampleIDs array based on the mapped column value
       const sampleID = tempSampleIDs.find((c) =>
@@ -526,14 +526,14 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     
 
     function stringMapping(input: string[], index: number): (string | null) {
-      const col = mappings[index][0]
+      const col = mappings[index]
 
       // Return the value from the input columm if it is not undefined, null, or empty
       return (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
     }
 
     function numberMapping(input: string[], index: number): (number | null) {
-      const col = mappings[index][0]
+      const col = mappings[index]
       
       if(col !== undefined && col !== null && input[col] !== ""){
         // Check if the value in the input column is a valid number
@@ -704,7 +704,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
   }
 
   function getColumnName(index: number) : string {
-    const temp = mappings[index][0];
+    const temp = mappings[index];
     if (temp !== undefined && temp !== null) {
       // Get the column name from the header array based on the mapping index
       return header[temp] ?? ""
