@@ -128,8 +128,9 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     /* Check if the dropped content should be deleted 
     If the content at targetIndex is the same as the dragged index, set the content at targetIndex to null 
     Otherwise, set the content at targetIndex the the dragged index*/
-    if (tempMappings[targetIndex] === index) {
-      tempMappings[targetIndex] = null;
+    if (tempMappings[targetIndex] == null) {
+      tempMappings[targetIndex] = []
+      tempMappings[targetIndex]?.push(index)
     } else {
       if (tempMappings[targetIndex]?.includes(index)) {
         if (tempMappings[targetIndex]?.length == 1) {
@@ -383,18 +384,16 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     let tempSampleNumber = sampleNumber
 
     function donorMapping(input: string[], index: number): string | null {
-      const col = mappings[index];
-    
-      // Find the corresponding donorID in the tempDonorIDs array based on the mapped column value
-      const donorID = tempDonorIDs.find((c) =>
-        col !== undefined && col !== null && input[col] !== ""
-          ? c.Input_Donor_ID === input[col] ?? null
-          : false
-      );
-    
-      // Get the input ID value from the column, or set it to null if not available
-      const inputID =
-        col !== undefined && col !== null && input[col] !== "" ? input[col] ?? null : null;
+      const cols = mappings[index]
+      let col = 0
+
+      if (cols) {
+        if (cols[0])
+        col = cols[0]
+      }
+
+      const donorID = tempDonorIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Donor_ID ===  input[col] ?? null : false);
+      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
     
       if (donorID?.Mapped_Donor_ID !== undefined) {
         // If the mapped donor ID is available in the donorID object, return it
@@ -431,18 +430,16 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     
   
     function masterMapping(input: string[], index: number): string | null {
-      const col = mappings[index];
-    
-      // Find the corresponding masterID in the tempMasterIDs array based on the mapped column value
-      const masterID = tempMasterIDs.find((c) =>
-        col !== undefined && col !== null && input[col] !== ""
-          ? c.Input_Master_ID === input[col] ?? null
-          : false
-      );
-    
-      // Get the input ID value from the column, or set it to null if not available
-      const inputID =
-        col !== undefined && col !== null && input[col] !== "" ? input[col] ?? null : null;
+      const cols = mappings[index]
+      let col = 0
+
+      if (cols) {
+        if (cols[0])
+        col = cols[0]
+      }
+
+      const masterID = tempMasterIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Master_ID === input[col] ?? null : false);
+      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
     
       if (masterID?.Mapped_Master_ID !== undefined) {
         // If the mapped master ID is available in the masterID object, return it
@@ -478,18 +475,16 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     }    
   
     function sampleMapping(input: string[], index: number): string | null {
-      const col = mappings[index];
-    
-      // Find the corresponding sampleID in the tempSampleIDs array based on the mapped column value
-      const sampleID = tempSampleIDs.find((c) =>
-        col !== undefined && col !== null && input[col] !== ""
-          ? c.Input_Sample_ID === input[col] ?? null
-          : false
-      );
-    
-      // Get the input ID value from the column, or set it to null if not available
-      const inputID =
-        col !== undefined && col !== null && input[col] !== "" ? input[col] ?? null : null;
+      const cols = mappings[index]
+      let col = 0
+
+      if (cols) {
+        if (cols[0])
+        col = cols[0]
+      }
+
+      const sampleID = tempSampleIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Sample_ID === input[col] ?? null : false);
+      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
     
       if (sampleID?.Mapped_Sample_ID !== undefined) {
         // If the mapped sample ID is available in the sampleID object, return it
@@ -526,25 +521,36 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     
 
     function stringMapping(input: string[], index: number): (string | null) {
-      const col = mappings[index]
+      const cols = mappings[index]
+      let string = ""
 
-      // Return the value from the input columm if it is not undefined, null, or empty
-      return (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
-    }
-
-    function numberMapping(input: string[], index: number): (number | null) {
-      const col = mappings[index]
-      
-      if(col !== undefined && col !== null && input[col] !== ""){
-        // Check if the value in the input column is a valid number
-        if(/^\d+$/.test(input[col] ?? "")) {
-          return Number(input[col]) // Return the parsed number value
-        }
-        else {
-          return null;  // Return null if the value is not a valid number
+      if (cols) {
+        for (let i = 0; i < cols.length; i++) {
+          const col = cols[i]
+          string += (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? "" + " " ?? null : null
         }
       }
 
+      // Return the value from the input columm if it is not undefined, null, or empty
+      return string
+    }
+
+    function numberMapping(input: string[], index: number): (number | null) {      
+      const cols = mappings[index]
+
+      if (cols && cols[0]) {
+        const col = cols[0]
+
+        if(col !== undefined && col !== null && input[col] !== ""){
+          // Check if the value in the input column is a valid number
+          if(/^\d+$/.test(input[col] ?? "")) {
+            return Number(input[col]) // Return the parsed number value
+          }
+          else {
+            return null;  // Return null if the value is not a valid number
+          }
+        }
+      }
       return null;
     }
 
@@ -703,14 +709,20 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     setErrorSamples([...errorSamples, ...errors])
   }
 
-  function getColumnName(index: number) : string {
-    const temp = mappings[index];
-    if (temp !== undefined && temp !== null) {
-      // Get the column name from the header array based on the mapping index
-      return header[temp] ?? ""
-    } else {
-      return ""
+  function getColumnName(index: number): string {
+    const cols = mappings[index];
+    let colName = ""
+
+    if (cols) {
+      for (let i = 0; i < cols.length; i++) {
+        const col = cols[i]
+
+        if (i > 0) {colName += ","}
+        colName += (col !== undefined && col !== null) ? ` ${header[col] ?? ""}` : ""
+      }
     }
+
+    return colName
   }
 
   function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
@@ -813,7 +825,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
                         <tr key={i}>
                           <td className={`bg-[#E6E6E6] text-center border-t-4 border-r-4 border-white px-4 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-[#E6E6E6] text-center border-t-4 border-white px-4 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3) -1 ? "pb-1 rounded-br-xl" : ""}`}>
-                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 transition-colors ease-in-out ${dragging ? "bg-[rgb(226,226,231)]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>
+                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 transition-colors ease-in-out ${dragging ? "bg-[#dddddd]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>
                               <div className="flex">
                                 <div className="relative">
                                 <select onChange={(e) => changeDelimiter(e.target.value, i - 1)} className="block appearance-none w-7 py-1 px-1 pr-2 rounded leading-tight focus:outline-none focus:shadow-outline">
@@ -854,7 +866,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
                         <tr key={100 + i}>
                           <td className={`bg-[#E6E6E6] text-center border-t-2 border-r-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-[#E6E6E6] text-center border-t-2 border-white px-2 ${i === Math.floor(Object.getOwnPropertyNames(SampleSchema.shape).length / 3 * 2) -1 ? "pb-1 rounded-br-xl" : ""}`}>
-                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>                               
+                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#dddddd]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}>                               
                               <div className="flex">
                                 <div className="relative">
                                   <select onChange={(e) => changeDelimiter(e.target.value, i - 1)} className="block appearance-none w-7 py-1 px-1 pr-2 rounded leading-tight focus:outline-none focus:shadow-outline">
@@ -895,7 +907,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
                         <tr key={1000 + i}>
                           <td className={`bg-[#E6E6E6] text-center border-t-2 border-r-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-bl-xl" : ""}`}>{name.replaceAll("_", " ")}</td>
                           <td className={`bg-[#E6E6E6] text-center border-t-2 border-white px-2 ${i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "pb-1 rounded-br-xl" : ""}`}>
-                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#A8A8A8]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> 
+                            <div className={`min-h-[2rem] h-auto w-[11vw] text-gray-600 ${dragging ? "bg-[#dddddd]" : ""}`} onDrop={(e) => handleOnDrop(e, i-1)} onDragOver={handleDragOver}> 
                               <div className="flex">
                                 <div className="relative">
                                 <select onChange={(e) => changeDelimiter(e.target.value, i - 1)} className="block appearance-none w-7 py-1 px-1 pr-2 rounded leading-tight focus:outline-none focus:shadow-outline">
