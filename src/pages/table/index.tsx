@@ -294,7 +294,11 @@ const Table: React.FC = () => {
 
     return (
       <div className="flex flex-col w-full pl-5 pr-10 py-5 overflow-y-scroll">
-        <h1 className="text-6xl font-semibold text-[#164A41] mb-5">Table View</h1>
+        <div className="flex flex-row w-full items-center justify-center">
+          <div className="w-1/4 border-2 border-solid h-1 border-green-900 rounded-3xl m-5"></div>
+          <h1 className="mt-5 mx-auto mb-2 text-green-900 whitespace-nowrap text-4xl"><b>TABLE VIEW</b></h1>
+          <div className="w-1/4 border-2 border-solid h-1 border-green-900 rounded-3xl m-5"></div>
+        </div>
 
         <div className="flex flex-row w-full items-center mt-3 mb-2">
           <Count count={count}/>
@@ -322,13 +326,13 @@ const Table: React.FC = () => {
 
         <table className="w-full text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
             <thead>
-                <tr className="bg-[rgb(131,182,94)] text-gray-100 font-extralight">
+                <tr className="bg-[#9DC88D] text-[#164A41] font-bold">
                     {activeColumns.map((column, i) => {
                         return(
-                            <th key={i} className={`py-2 font-extralight border-dotted border-black border-r-2 ${i === 0 ? "rounded-l-xl" : ""}`}><button onClick={() => {sortBy === "" ? setSortBy(column): setSortBy(""); handleSort(column as SampleKey)}}>{column.replace(/_/g," ")}</button></th>
+                            <th key={i} className={`py-2 font-bold border-dotted border-black border-r-2 ${i === 0 ? "rounded-l-xl" : ""}`}><button onClick={() => {sortBy === "" ? setSortBy(column): setSortBy(""); handleSort(column as SampleKey)}}>{column.replace(/_/g," ")}</button></th>
                         )
                     })}
-                    <th className="py-2 font-extralight rounded-r-xl">Details</th>
+                    <th className="py-2 font-bold rounded-r-xl">Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -337,13 +341,13 @@ const Table: React.FC = () => {
                         <tr key={index} className="text-center">
                             {activeColumns.map((column, i) => {
                                 return (
-                                    <td key={i} className={`py-2 px-3 bg-gray-300 ${i === 0 ? "rounded-l-xl" : ""}`}>{getProperty(sample, column as SampleKey)?.toString()}</td>
+                                    <td key={i} className={`py-2 px-3 bg-[#E6E6E6] ${i === 0 ? "rounded-l-xl" : ""}`}>{getProperty(sample, column as SampleKey)?.toString()}</td>
                                 )
                             })}
-                             <td className="py-2 px-3 bg-gray-300 rounded-r-xl"><button onClick={() => { updateState(index) }}><BiDetail className="relative top-1" /></button></td>
+                             <td className="py-2 px-3 bg-[#E6E6E6] rounded-r-xl"><button onClick={() => { updateState(index) }}><BiDetail className="relative top-1" /></button></td>
                         </tr>
-                        <tr className={`mx-5 ${show[index] ? "" : "hidden"} bg-gray-200`}>
-                            <td colSpan={2} className="px-5 bg-gray-200">
+                        <tr className={`mx-5 ${show[index] ? "" : "hidden"} bg-[#E6E6E6]`}>
+                            <td colSpan={2} className="px-5 bg-[#E6E6E6]">
                                 <div className="grid grid-cols-2">
                                     <strong className="col-span-2">General Data</strong>
                                     <span>CBH Master ID:</span> {sample.CBH_Master_ID ?? "NaN"}
