@@ -4,6 +4,7 @@ import { z } from 'zod';
 export const sampleIDMappingRouter = createTRPCRouter ({
     getAll: publicProcedure
     .query(async ({ ctx }) => {
+        // Retrieve al sample ID mappings
         return ctx.prisma.sampleIDMapping.findMany();
     }),
     
@@ -13,6 +14,7 @@ export const sampleIDMappingRouter = createTRPCRouter ({
         Mapped_Sample_ID: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
+        // Create a new sample ID mapping
         return await ctx.prisma.sampleIDMapping.create({
             data: {
                 Input_Sample_ID: input.Input_Sample_ID,
@@ -27,6 +29,7 @@ export const sampleIDMappingRouter = createTRPCRouter ({
 export const donorIDMappingRouter = createTRPCRouter ({
     getAll: publicProcedure
     .query(async ({ ctx }) => {
+        // Retrieve all donor ID mappings
         return ctx.prisma.donorIDMapping.findMany();
     }),
     
@@ -36,6 +39,7 @@ export const donorIDMappingRouter = createTRPCRouter ({
         Mapped_Donor_ID: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
+        // Create a new donor ID mapping
         return await ctx.prisma.donorIDMapping.create({
             data: {
                 Input_Donor_ID: input.Input_Donor_ID,
@@ -49,6 +53,7 @@ export const donorIDMappingRouter = createTRPCRouter ({
 export const masterIDMappingRouter = createTRPCRouter ({
     getAll: publicProcedure
     .query(async ({ ctx }) => {
+        // Retrieve all master ID mappings
         return ctx.prisma.masterIDMapping.findMany();
     }),
     
@@ -58,6 +63,7 @@ export const masterIDMappingRouter = createTRPCRouter ({
         Mapped_Master_ID: z.string(),
     }))
     .mutation(async ({ ctx, input }) => {
+        // Create a new master ID mapping
         return await ctx.prisma.masterIDMapping.create({
             data: {
                 Input_Master_ID: input.Input_Master_ID,

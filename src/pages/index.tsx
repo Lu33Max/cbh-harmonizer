@@ -15,6 +15,7 @@ const Home: NextPage = () => {
   const [mappings, setMappings] = useState<(number[] | null)[]>([])
   const [delimiters, setDelimiters] = useState<(string | null)[]>([])
 
+  // If the user is not logged in, redirect them to the login page
   if(!session){
     return (
       <div>
@@ -25,6 +26,7 @@ const Home: NextPage = () => {
   
   return (
     <div className="flex flex-row max-w-[100vw] max-h-[100vh] overflow-x-hidden overflow-y-hidden font-poppins">
+      {/* Render the Sidebar component with mappings and setMappngs as props. */}
       <Sidebar mappings={mappings} setMapping={setMappings} />
       <Import mappings={mappings} setMappings={setMappings} delimiters={delimiters} setDelimiters={setDelimiters}/>
     </div>
@@ -72,6 +74,9 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
   type SampleKey = keyof typeof newSamples[0];
 
   useEffect(() => {
+    /* Check if mappings array length is less than the number of properties in SampleSchema minus 1
+    If it is, populate a temporary array with null values for each property in SampleSchema minus 1
+    Then, set the mappings state to the temporary array */
     if (mappings.length < Object.getOwnPropertyNames(SampleSchema.shape).length - 1) {
       const tempArray = [] 
       for (let i = 0; i < Object.getOwnPropertyNames(SampleSchema.shape).length - 1; i ++) {
@@ -83,6 +88,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
   }, [])
 
   useEffect(() => {
+    // Trigger API refetch functions when input or other dependencies change
     void refetchCurrentDonorID()
     void refetchCurrentMasterID()
     void refetchCurrentSampleID()
@@ -92,18 +98,25 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
   }, [input, refetchCurrentDonorID, refetchCurrentMasterID, refetchCurrentSampleID, refetchDonorID, refetchMasterID, refetchSampleID])
 
   useEffect(() => {
+    /* Update the donor number based on the currentDonorID, if it exists, extract the numeric portions from the CBH_Donor_ID, increment it by 1 
+    and set it as the new donor number, if it doesn't exist, set it to 1000000 */
     setDonorNumber(currentDonorID ? Number(currentDonorID?.CBH_Donor_ID?.slice(4)) + 1 : 1000000)
   }, [currentDonorID])
 
   useEffect(() => {
+    /* Update the master number based on the currentMasterID, if it exists, extract the numeric portions from the CBH_Master_ID, increment it by 1 
+    and set it as the new master number, if it doesn't exist, set it to 1000000 */
     setMasterNumber(currentMasterID ? Number(currentMasterID?.CBH_Master_ID?.slice(4)) + 1 : 1000000)
   }, [currentMasterID])
 
   useEffect(() => {
+    /* Update the sample number based on the currentSampleID, if it exists, extract the numeric portions from the CBH_Sample_ID, increment it by 1 
+    and set it as the new sample number, if it doesn't exist, set it to 1000000 */
     setSampleNumber(currentSampleID ? Number(currentSampleID?.CBH_Sample_ID?.slice(4)) + 1 : 1000000)
   }, [currentSampleID])
   
   function handleOnDrag(e: React.DragEvent, index: number) {
+    // Set the index value in the dataTransfer object for drag and drop operations
     e.dataTransfer.setData("index", index.toString());
     setDragging(true);
   }
@@ -111,10 +124,12 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
   function handleOnDrop(e: React.DragEvent, targetIndex: number) {
     const index = Number(e.dataTransfer.getData("index"));
     const tempMappings = [...mappings];
-
-    if (tempMappings[targetIndex] == null) {
-      tempMappings[targetIndex] = []
-      tempMappings[targetIndex]?.push(index)
+  
+    /* Check if the dropped content should be deleted 
+    If the content at targetIndex is the same as the dragged index, set the content at targetIndex to null 
+    Otherwise, set the content at targetIndex the the dragged index*/
+    if (tempMappings[targetIndex] === index) {
+      tempMappings[targetIndex] = null;
     } else {
       if (tempMappings[targetIndex]?.includes(index)) {
         if (tempMappings[targetIndex]?.length == 1) {
@@ -138,6 +153,8 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
 
   function handleDragOver(e: React.DragEvent) {
     e.stopPropagation();
+    /* Prevent default behavior  if dragging state is true
+    This allows the element to be a drop target only when dragging is active*/ 
     if (dragging) {
       e.preventDefault();
     }
@@ -157,133 +174,129 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
   }
 
   function readFile() {
-    if(input !== undefined){
-      if(input?.name.endsWith(".xlsx")){
-        const wb = new Excel.Workbook()
-        const reader = new FileReader()
-
-        reader.readAsArrayBuffer(input)
+    if (input !== undefined) {
+      if (input?.name.endsWith(".xlsx")) {
+        // Read and process Excel (.xlsx) file
+        const wb = new Excel.Workbook(); // Create a new instance of the Excel Workbook
+        const reader = new FileReader(); // Create a new instance of the FileReader API
+  
+        reader.readAsArrayBuffer(input); // Read the file data as an ArrayBuffer
+  
         reader.onload = () => {
-          const buffer = reader.result;
-
-          if(buffer instanceof ArrayBuffer){
-            wb.xlsx.load(buffer).then(workbook => {
+          const buffer = reader.result; // Get the result (file data) from the FileReader
+  
+          if (buffer instanceof ArrayBuffer) {
+            // Load the ArrayBuffer into the Excel Workbook
+            wb.xlsx.load(buffer).then((workbook) => {
               let rowLength = 0;
-              const tempSampleArray: string[][] = []
-
+              const tempSampleArray: string[][] = [];
+  
               workbook.eachSheet((sheet) => {
+                // Iterate over each sheet in the workbook
                 sheet.eachRow((row, rowIndex) => {
-                  if(rowIndex === startRow){
-                    const tempHeader: (string | undefined)[] = []
-
+                  // Iterate over each row in the sheet
+  
+                  if (rowIndex === startRow) {
+                    // Check if it is the header row
+                    const tempHeader: (string | undefined)[] = [];
+  
                     row.eachCell((cell) => {
-                      tempHeader.push(cell.text)
-                    })
-
-                    tempHeader.push(undefined)
-
-                    rowLength = tempHeader.length
-                    setHeader(tempHeader)
+                      // Iterate over each cell in the row to extract the header values
+                      tempHeader.push(cell.text);
+                    });
+  
+                    tempHeader.push(undefined);
+  
+                    rowLength = tempHeader.length;
+                    setHeader(tempHeader); // Set the header state with the extracted values
                   }
-
-                  if(rowIndex > startRow){
-                    const tempSample: string[] = []
-                    let index = 1
-
+  
+                  if (rowIndex > startRow) {
+                    // Skip the header row and process the sample data
+                    const tempSample: string[] = [];
+                    let index = 1;
+  
                     row.eachCell((cell, i) => {
-                      while(i > index){
-                        tempSample.push("")
-                        index++
+                      // Iterate over each cell in the row to extract the sample values
+  
+                      while (i > index) {
+                        tempSample.push(""); // Add empty string for missing values
+                        index++;
                       }
-                      tempSample.push(cell.text)
-                      index++
-                    })
-
-                    while(tempSample.length < rowLength){
-                      tempSample.push("")
+  
+                      tempSample.push(cell.text);
+                      index++;
+                    });
+  
+                    while (tempSample.length < rowLength) {
+                      tempSample.push("");
                     }
-
-                    tempSampleArray.push(tempSample)
-                  }   
-                })
-              })
-
-              setRawSamples(tempSampleArray)
+  
+                    tempSampleArray.push(tempSample); // Add the sample data to the temporary array
+                  }
+                });
+              });
+  
+              setRawSamples(tempSampleArray); // Set the rawSamples state with the extracted sample data
             })
-            .catch(error => {
-              console.error(error)
-            })
-          }
-        }
-      } else if(input.name.endsWith(".csv")){
-      
-        const reader = new FileReader();
-        
-        reader.readAsText(input);
-        reader.onload = () => {
-          const csvData = reader.result as string;
-
-          if(csvData){
-            const rows = csvData.split("\n");
-            const tempSampleArray = [];
-          
-            if (rows.length > 0) {
-            // Assuming the header is in the first row
-              const tempHeader = rows[0]?.split(";") || []; // fallback value if undefined, so always valid arrays
-              setHeader(tempHeader);
-            
-              for (let i = 1; i < rows.length; i++) {
-                const rowData = rows[i]?.split(";") || [];
-                const tempSample = [];
-            
-                for (let j = 0; j < tempHeader.length; j++) {
-                  tempSample.push(rowData[j] || ""); // Push empty string if no value present
-                }
-            
-                tempSampleArray.push(tempSample);
-              }
-            }
-          
-            setRawSamples(tempSampleArray);
+            .catch((error) => {
+              console.error(error);
+            });
           }
         };
-        
+      } else if (input.name.endsWith(".csv")) {
+        // Read and process CSV (.csv) file
+        const reader = new FileReader(); // Create a new instance of the FileReader API
+  
+        reader.readAsText(input); // Read the file data as text
+  
+        reader.onload = () => {
+          const csvData = reader.result as string; // Get the result (file data) from the FileReader
+  
+          if (csvData) {
+            const rows = csvData.split("\n"); // Split the CSV data into rows
+            const tempSampleArray = [];
+  
+            if (rows.length > 0) {
+              // Assuming the header is in the first row
+              const tempHeader = rows[0]?.split(";") || []; // Split the first row into header values
+              setHeader(tempHeader); // Set the header state with the extracted values
+  
+              for (let i = 1; i < rows.length; i++) {
+                // Iterate over the rows (excluding the header row)
+                const rowData = rows[i]?.split(";") || []; // Split the row into sample values
+                const tempSample = [];
+  
+                for (let j = 0; j < tempHeader.length; j++) {
+                  tempSample.push(rowData[j] || ""); // Push the sample values into the temporary sample array
+                }
+  
+                tempSampleArray.push(tempSample); // Add the sample array to the temporary array
+              }
+            }
+  
+            setRawSamples(tempSampleArray); // Set the rawSamples state with the extracted sample data
+          }
+        };
       } else {
-        alert("Filetype not supported. Try uploading data in Excel or csv format.")
+        // Alert the user if the file type is not supported
+        alert("Filetype not supported. Try uploading data in Excel or csv format.");
       }
     } else {
-      alert("No File selected")
+      // Alert the user if no file is selected
+      alert("No File selected");
     }
-  }
+  }  
 
   function mapColumns (): void {
     const objectsToCreate: Samples[] = [];
 
+    // Create temporary arrays to hold the values of donorIDs, masterIDs, and sampleIDs
     const tempDonorIDs = donorIDs ? [...donorIDs] : []
     const tempMasterIDs = masterIDs ? [...masterIDs] : []
     const tempSampleIDs = sampleIDs ? [...sampleIDs] : []
 
-    /*const isLastEntryEmpty = async (): Promise<boolean> => {
-      // Fetch the data from your data source using Prisma
-      const data = await api.samples.getMany.useQuery();
-    
-      // Check if the data array is empty
-      if (data.length === 0) {
-        return false; // Data array is empty, so the last entry is not empty
-      }
-    
-      // Get the last entry from the data array
-      const lastEntry = data[data.length - 1];
-    
-      // Check if the last entry is empty
-      const isEmpty = Object.keys(lastEntry).every((key) => {
-        const value = lastEntry[key];
-        return value === null || value === undefined || value === '';
-      });
-    
-      return isEmpty;
-    };*/
-
+    // Helper function to parse date values
     function parseDate(input: string[], index: number): (Date | null){
       const cols = mappings[index]
       if (cols && cols[0]) {
@@ -369,169 +382,178 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
     let tempMasterNumber = masterNumber
     let tempSampleNumber = sampleNumber
 
-    // Die Funktionen sind jetzt in die mapColumns Method egewandert, um Zugriff die IDs und Arrays über sch zu haben
-    function donorMapping(input: string[], index: number): (string | null) {
-      const cols = mappings[index]
-      let col = 0
-
-      if (cols) {
-        if (cols[0])
-        col = cols[0]
-      }
-
-      const donorID = tempDonorIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Donor_ID ===  input[col] ?? null : false);
-      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
-
-      if(donorID?.Mapped_Donor_ID !== undefined)
-      {
+    function donorMapping(input: string[], index: number): string | null {
+      const col = mappings[index][0];
+    
+      // Find the corresponding donorID in the tempDonorIDs array based on the mapped column value
+      const donorID = tempDonorIDs.find((c) =>
+        col !== undefined && col !== null && input[col] !== ""
+          ? c.Input_Donor_ID === input[col] ?? null
+          : false
+      );
+    
+      // Get the input ID value from the column, or set it to null if not available
+      const inputID =
+        col !== undefined && col !== null && input[col] !== "" ? input[col] ?? null : null;
+    
+      if (donorID?.Mapped_Donor_ID !== undefined) {
+        // If the mapped donor ID is available in the donorID object, return it
         return donorID.Mapped_Donor_ID;
-      } 
-      else 
-      {
-        const newDonorID = "CBHD" + tempDonorNumber.toString()
-        tempDonorNumber++
-  
-        // Test, if the input had an ID assigned and only then create a new mapping
-        if(inputID !== null){
-          tempDonorIDs.push({id: "", Input_Donor_ID: inputID, Mapped_Donor_ID: newDonorID})
-          
+      } else {
+        // Generate a new donor ID if the mapping is not found
+    
+        // Generate a new donor ID using the tempDonorNumber and prefix it with "CBHD"
+        const newDonorID = "CBHD" + tempDonorNumber.toString();
+        tempDonorNumber++;
+    
+        // Test if the input had an ID assigned and only then create a new mapping
+        if (inputID !== null) {
+          // Push a new mapping to the tempDonorIDs array
+          tempDonorIDs.push({ id: "", Input_Donor_ID: inputID, Mapped_Donor_ID: newDonorID });
+    
           try {
+            // Make an API request to create a new donor ID mapping
             createDonorID.mutate({
               Input_Donor_ID: inputID,
               Mapped_Donor_ID: newDonorID,
             });
-            
-            return newDonorID;
-          }catch (error) {
-            console.error('API request error:', error);
-            throw error;
-          }
-        }
-      
-        return newDonorID
-      }
-    }
-  
-    function masterMapping(input: string[], index: number): (string | null) {
-      const cols = mappings[index]
-      let col = 0
-
-      if (cols) {
-        if (cols[0])
-        col = cols[0]
-      }
-
-      const masterID = tempMasterIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Master_ID === input[col] ?? null : false);
-      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
-
-      if(masterID?.Mapped_Master_ID !== undefined)
-      {
-        return masterID.Mapped_Master_ID;
-      }
-      else 
-      {
-        const newMasterID = "CBHM" + tempMasterNumber.toString()
-        tempMasterNumber++
-  
-        // Test, if the input had an ID assigned and only then create a new mapping
-        if(inputID !== null){
-          tempMasterIDs.push({id: "", Input_Master_ID: inputID, Mapped_Master_ID: newMasterID})
-
-          try {
-            createMasterID.mutate({
-              Input_Master_ID: inputID,
-              Mapped_Master_ID: newMasterID,
-            });
-
-            return newMasterID;
-          }catch (error) {
-            console.error('API request error:', error);
-            throw error;
-          }
-        }
-        return newMasterID
-      }
-    }
-  
-    function sampleMapping(input: string[], index: number): (string | null) {
-      const cols = mappings[index]
-      let col = 0
-
-      if (cols) {
-        if (cols[0])
-        col = cols[0]
-      }
-
-      const sampleID = tempSampleIDs.find(c => (col !== undefined && col !== null && input[col] !== "") ? c.Input_Sample_ID === input[col] ?? null : false);
-      const inputID = (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
-
-      if(sampleID?.Mapped_Sample_ID !== undefined){
-        return sampleID.Mapped_Sample_ID;
-      }
-      else 
-      {
-        const newSampleID = "CBHS" + tempSampleNumber.toString()
-        tempSampleNumber++
-  
-        // Test, if the input had an ID assigned and only then create a new mapping
-        if(inputID !== null){
-          tempSampleIDs.push({id: "", Input_Sample_ID: inputID, Mapped_Sample_ID: newSampleID})
-
-          try {
-            createSampleID.mutate({
-              Input_Sample_ID: inputID,
-              Mapped_Sample_ID: newSampleID,
-            });
-            
-            return newSampleID;
+    
+            return newDonorID; // Return the newly generated donor ID
           } catch (error) {
             console.error('API request error:', error);
             throw error;
           }
         }
-        return newSampleID;
+    
+        return newDonorID; // Return the newly generated donor ID
       }
     }
+    
+  
+    function masterMapping(input: string[], index: number): string | null {
+      const col = mappings[index][0];
+    
+      // Find the corresponding masterID in the tempMasterIDs array based on the mapped column value
+      const masterID = tempMasterIDs.find((c) =>
+        col !== undefined && col !== null && input[col] !== ""
+          ? c.Input_Master_ID === input[col] ?? null
+          : false
+      );
+    
+      // Get the input ID value from the column, or set it to null if not available
+      const inputID =
+        col !== undefined && col !== null && input[col] !== "" ? input[col] ?? null : null;
+    
+      if (masterID?.Mapped_Master_ID !== undefined) {
+        // If the mapped master ID is available in the masterID object, return it
+        return masterID.Mapped_Master_ID;
+      } else {
+        // Generate a new master ID if the mapping is not found
+    
+        // Generate a new master ID using the tempMasterNumber and prefix it with "CBHM"
+        const newMasterID = "CBHM" + tempMasterNumber.toString();
+        tempMasterNumber++;
+    
+        // Test if the input had an ID assigned and only then create a new mapping
+        if (inputID !== null) {
+          // Push a new mapping to the tempMasterIDs array
+          tempMasterIDs.push({ id: "", Input_Master_ID: inputID, Mapped_Master_ID: newMasterID });
+    
+          try {
+            // Make an API request to create a new master ID mapping
+            createMasterID.mutate({
+              Input_Master_ID: inputID,
+              Mapped_Master_ID: newMasterID,
+            });
+    
+            return newMasterID; // Return the newly generated master ID
+          } catch (error) {
+            console.error('API request error:', error);
+            throw error;
+          }
+        }
+    
+        return newMasterID; // Return the newly generated master ID
+      }
+    }    
+  
+    function sampleMapping(input: string[], index: number): string | null {
+      const col = mappings[index][0];
+    
+      // Find the corresponding sampleID in the tempSampleIDs array based on the mapped column value
+      const sampleID = tempSampleIDs.find((c) =>
+        col !== undefined && col !== null && input[col] !== ""
+          ? c.Input_Sample_ID === input[col] ?? null
+          : false
+      );
+    
+      // Get the input ID value from the column, or set it to null if not available
+      const inputID =
+        col !== undefined && col !== null && input[col] !== "" ? input[col] ?? null : null;
+    
+      if (sampleID?.Mapped_Sample_ID !== undefined) {
+        // If the mapped sample ID is available in the sampleID object, return it
+        return sampleID.Mapped_Sample_ID;
+      } else {
+        // Generate a new sample ID if the mapping is not found
+    
+        // Generate a new sample ID using the tempSampleNumber and prefix it with "CBHS"
+        const newSampleID = "CBHS" + tempSampleNumber.toString();
+        tempSampleNumber++;
+    
+        // Test if the input had an ID assigned and only then create a new mapping
+        if (inputID !== null) {
+          // Push a new mapping to the tempSampleIDs array
+          tempSampleIDs.push({ id: "", Input_Sample_ID: inputID, Mapped_Sample_ID: newSampleID });
+    
+          try {
+            // Make an API request to create a new sample ID mapping
+            createSampleID.mutate({
+              Input_Sample_ID: inputID,
+              Mapped_Sample_ID: newSampleID,
+            });
+    
+            return newSampleID; // Return the newly generated sample ID
+          } catch (error) {
+            console.error('API request error:', error);
+            throw error;
+          }
+        }
+    
+        return newSampleID; // Return the newly generated sample ID
+      }
+    }
+    
 
     function stringMapping(input: string[], index: number): (string | null) {
-      const cols = mappings[index]
-      let string = ""
+      const col = mappings[index][0]
 
-      if (cols) {
-        for (let i = 0; i < cols.length; i++) {
-          const col = cols[i]
-
-          string += (col !== undefined && col !== null && input[col] !== "") ? `${input[col] ?? ""}${delimiters[col] ?? ""}` : null
-        }
-      }
-
-      return string
+      // Return the value from the input columm if it is not undefined, null, or empty
+      return (col !== undefined && col !== null && input[col] !== "") ? input[col] ?? null : null
     }
 
     function numberMapping(input: string[], index: number): (number | null) {
-      const cols = mappings[index]
-      if (cols && cols[0]) {
-        const col = cols[0]
-
-        if(col !== undefined && col !== null && input[col] !== ""){
-          if(/^\d+$/.test(input[col] ?? ""))
-          {
-            return Number(input[col])
-          }
-          else
-          {
-            return null
-          }
+      const col = mappings[index][0]
+      
+      if(col !== undefined && col !== null && input[col] !== ""){
+        // Check if the value in the input column is a valid number
+        if(/^\d+$/.test(input[col] ?? "")) {
+          return Number(input[col]) // Return the parsed number value
+        }
+        else {
+          return null;  // Return null if the value is not a valid number
         }
       }
-      return null
+
+      return null;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     function generateID(input: string[], index: number): string {
-      return cuid()
+      return cuid() // Generate a new unique ID using cuid
     }
 
+    // Define an object 'functions' that maps column names to corresponding mapping functions
     const functions = {
       id: generateID,
       CBH_Donor_ID: donorMapping,
@@ -589,105 +611,110 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
       Informed_Consent: stringMapping,
     }
 
+    // Define a type 'FunctionKeys' that represents the keys of the 'functions' object
     type FunctionKeys = keyof typeof functions
   
-    rawSamples.forEach(sample => {
-      let newObject: Samples = ExampleSample
-
-      // Loop over every property of sample and execute according mapping method
+    rawSamples.forEach((sample) => {
+      let newObject: Samples = ExampleSample;
+    
+      // Loop over every property of sample and execute the corresponding mapping method
       Object.getOwnPropertyNames(newObject).map((col, i) => {
-        const mapper = getProperty(functions, col as FunctionKeys)
-        newObject = {...newObject, [col]: mapper(sample, i-1)}
-      })
-
+        // Get the mapping function for the current column from the 'functions' object
+        const mapper = getProperty(functions, col as FunctionKeys);
+        // Apply the mapping function to the sample and update the newObject
+        newObject = { ...newObject, [col]: mapper(sample, i - 1) };
+      });
+    
       try {
-        SampleSchema.parse(newObject)
-        objectsToCreate.push(newObject)
-        
+        // Validate the newObject against the SampleSchema
+        SampleSchema.parse(newObject);
+        objectsToCreate.push(newObject);
       } catch (error) {
-        newObject.Date_of_Collection = null
-
+        // Handle validation errors
+        newObject.Date_of_Collection = null;
+    
         try {
-          SampleSchema.parse(newObject)
-          objectsToCreate.push(newObject)
-        } catch(error) {
-          errorSamples.push(newObject)
-          console.error(error)
+          // Try parsing the newObject again with the updated Date_of_Collection
+          SampleSchema.parse(newObject);
+          objectsToCreate.push(newObject);
+        } catch (error) {
+          // Handle errors when the newObject still fails validation
+          errorSamples.push(newObject);
+          console.error(error);
         }
       }
-    })
-  
-    setDonorNumber(tempDonorNumber)
-    setMasterNumber(tempMasterNumber)
-    setSampleNumber(tempSampleNumber)
+    });
     
-    setNewSamples(objectsToCreate)
-  }
+    // Update the state variables with the updated temporary ID numbers
+    setDonorNumber(tempDonorNumber);
+    setMasterNumber(tempMasterNumber);
+    setSampleNumber(tempSampleNumber);
+    
+    // Set the newSamples state variable with the objects to be created
+    setNewSamples(objectsToCreate);
+  }    
 
-function onSubmit() {
-    const uploadSamples: Samples[][] = []
-    const size = 200
-
-    // Weil ein zu großes Array die maximalen Beschränkungen für einen HTTP Body überschreitet, wird das große Array hier in kleinere Arrays unterteilt, die jeweils mit 1 Sekunfde Delay
-    // nacheinander ausgeführt werden, um so die Datenbank nicht zu überlasten
+  function onSubmit() {
+    const uploadSamples: Samples[][] = [];
+    const size = 200;
+  
+    // Divide the newSamples array into smaller arrays to avoid exceeding HTTP body limits
+    // Execute each smaller array with a delay of 1 second to prevent overloading the database
     for (let i = 0; i < newSamples.length; i += size) {
       uploadSamples.push(newSamples.slice(i, i + size));
     }
-
+  
+    // Upload each smaller array with a delay between each upload
     uploadSamples.forEach((samples, i) => {
-      setTimeout(() => uploadFunction(samples), i * 5000)
-    })
+      setTimeout(() => uploadFunction(samples), i * 5000);
+    });
   }
-
+  
   function onSubmitErrorSamples() {
-    const uploadSamples: Samples[][] = []
-    const size = 200
-
-    // Weil ein zu großes Array die maximalen Beschränkungen für einen HTTP Body überschreitet, wird das große Array hier in kleinere Arrays unterteilt, die jeweils mit 1 Sekunfde Delay
-    // nacheinander ausgeführt werden, um so die Datenbank nicht zu überlasten
+    const uploadSamples: Samples[][] = [];
+    const size = 200;
+  
+    // Divide the errorSamples array into smaller arrays to avoid exceeding HTTP body limits
+    // Execute each smaller array with a delay of 1 second to prevent overloading the database
     for (let i = 0; i < errorSamples.length; i += size) {
       uploadSamples.push(errorSamples.slice(i, i + size));
     }
-
+  
+    // Upload each smaller array with a delay between each upload
     uploadSamples.forEach((samples, i) => {
-      setTimeout(() => uploadFunction(samples), i * 5000)
-    })
+      setTimeout(() => uploadFunction(samples), i * 5000);
+    });
   }
+  
 
   function uploadFunction(uploadSamples: Samples[]){
     const errors: Samples[] = []
-
+    // Perform the upload operation for each sample
     uploadSamples.forEach((sample) => {      
       upload.mutate(sample)
 
       if(upload.isError){
+        // If the upload encountered an error, add the sample to the errors array
         errors.push(sample)
       }
     })
-    //uploadMany.mutate(uploadSamples)
 
+    // Update the errorSamples state with the new errors
     setErrorSamples([...errorSamples, ...errors])
   }
 
   function getColumnName(index: number) : string {
-    const cols = mappings[index];
-    let string = ""
-
-    if (cols) {
-      for (let i = 0; i < cols.length; i++) {
-        const col = cols[i]
-
-        if (i > 0) {
-          string += ","
-        }
-        string += (col !== undefined && col !== null && header[col] !== undefined) ? ` ${header[col] || ""}` : ""
-      }
+    const temp = mappings[index][0];
+    if (temp !== undefined && temp !== null) {
+      // Get the column name from the header array based on the mapping index
+      return header[temp] ?? ""
+    } else {
+      return ""
     }
-
-    return string
   }
 
   function getProperty<T, K extends keyof T>(o: T, propertyName: K): T[K] {
+    // Get the value of a property from an object using the property name
     return o[propertyName]
   }
 

@@ -1,13 +1,16 @@
+// Define the generator for the Prisma client
 generator client {
   provider        = "prisma-client-js"
   previewFeatures = ["fullTextSearch"]
 }
 
+// Define the dta source for the Prisma client
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
+// This is the model for the Account
 model Account {
   id                String  @id @default(cuid())
   userId            String
@@ -26,6 +29,7 @@ model Account {
   @@unique([provider, providerAccountId])
 }
 
+// This is the model for the Session
 model Session {
   id           String   @id @default(cuid())
   sessionToken String   @unique
@@ -34,6 +38,7 @@ model Session {
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+// This is the model for the user
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -46,6 +51,7 @@ model User {
   sessions      Session[]
 }
 
+// This is the model for the verification Token
 model VerificationToken {
   identifier String
   token      String   @unique
@@ -54,6 +60,7 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
+// This is the model for the samples
 model Samples {
   id                             String    @id @default(cuid())
   CBH_Donor_ID                   String?
@@ -111,30 +118,35 @@ model Samples {
   Informed_Consent               String?
 }
 
+// This is the model for the mapping of the sample ID
 model SampleIDMapping {
   id               String @id @default(cuid())
   Input_Sample_ID  String
   Mapped_Sample_ID String
 }
 
+// This is the model for the mapping of the donor ID
 model DonorIDMapping {
   id              String @id @default(cuid())
   Input_Donor_ID  String
   Mapped_Donor_ID String
 }
 
+// This is the model for the mapping of the master ID
 model MasterIDMapping {
   id               String @id @default(cuid())
   Input_Master_ID  String
   Mapped_Master_ID String
 }
 
+// This is the model for the saved presets
 model SavedPresets {
   id          String @id @default(cuid())
   Preset_Name String
   Preset      Int[]
 }
 
+// This is the model for the mapping
 model Mapping {
   id      String @id @default(cuid())
   name    String
