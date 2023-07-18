@@ -68,7 +68,7 @@ export type TableSamples = {
 
 const Search: NextPage = () => {
   const { data: session } = useSession()
-  const [mappings, setMappings] = useState<(number | null)[]>([])
+  const [mappings, setMappings] = useState<(number[] | null)[]>([])
 
   if(!session){
     return (
