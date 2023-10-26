@@ -110,7 +110,7 @@ const Table: React.FC = () => {
     const [tempColumns, setTempColumns] = useState<string[]>(defaultColumns)
 
     const { data: samples, refetch: refetchSamples } = api.samples.getMany.useQuery(
-        { pages: page, lines: pagelength }
+      { pages: page, lines: pagelength }
     )
     const { data: count } = api.samples.countNormal.useQuery()
 

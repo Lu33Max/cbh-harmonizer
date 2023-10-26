@@ -10,112 +10,198 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// This is the model for the Account
 model Account {
-  id                String  @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?
-  access_token      String?
-  expires_at        Int?
-  token_type        String?
-  scope             String?
-  id_token          String?
-  session_state     String?
-  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                  String  @id @default(cuid())
+  userId              String
+  type                String
+  provider            String
+  providerAccountId   String
+  refresh_token       String?
+  access_token        String?
+  expires_at          Int?
+  token_type          String?
+  scope               String?
+  id_token            String?
+  session_state       String?
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
 }
 
-// This is the model for the Session
 model Session {
-  id           String   @id @default(cuid())
-  sessionToken String   @unique
-  userId       String
-  expires      DateTime
-  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id            String   @id @default(cuid())
+  sessionToken  String   @unique
+  userId        String
+  expires       DateTime
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// This is the model for the user
 model User {
-  id            String    @id @default(cuid())
-  name          String?
-  email         String?   @unique
-  emailVerified DateTime?
-  image         String?
-  password      String?
-  accounts      Account[]
-  mappings      Mapping[]
-  sessions      Session[]
+  id              String    @id @default(cuid())
+  name            String?
+  email           String?   @unique
+  emailVerified   DateTime?
+  image           String?
+  password        String?
+  accounts        Account[]
+  filter          Filter[]
+  mappings        Mapping[]
+  sessions        Session[]
 }
 
-// This is the model for the verification Token
 model VerificationToken {
-  identifier String
-  token      String   @unique
-  expires    DateTime
+  identifier  String
+  token       String   @unique
+  expires     DateTime
 
   @@unique([identifier, token])
 }
 
-// This is the model for the samples
+model Categories {
+  mainCategory String
+  subCategory  String?
+  filter       String?
+  id           String  @id @default(cuid())
+}
+
+model Columns {
+  name      String  @id
+  category  String?
+}
+
 model Samples {
-  id                             String    @id @default(cuid())
-  CBH_Donor_ID                   String?
-  CBH_Master_ID                  String?
-  CBH_Sample_ID                  String?
-  Price                          Float?
-  Quantity                       Float?
-  Unit                           String?
-  Matrix                         String?
-  Storage_Temperature            String?
-  Freeze_Thaw_Cycles             Float?
-  Sample_Condition               String?
-  Infectious_Disease_Test_Result String?
-  Gender                         String?
-  Age                            Float?
-  Ethnicity                      String?
-  BMI                            Float?
-  Lab_Parameter                  String?
-  Result_Interpretation          String?
-  Result_Raw                     String?
-  Result_Numerical               Float?
-  Result_Unit                    String?
-  Cut_Off_Raw                    String?
-  Cut_Off_Numerical              Float?
-  Test_Method                    String?
-  Test_System                    String?
-  Test_System_Manufacturer       String?
-  Result_Obtained_From           String?
-  Diagnosis                      String?
-  Diagnosis_Remarks              String?
-  ICD_Code                       String?
-  Pregnancy_Week                 Float?
-  Pregnancy_Trimester            String?
-  Medication                     String?
-  Therapy                        String?
-  Histological_Diagnosis         String?
-  Organ                          String?
-  Disease_Presentation           String?
-  TNM_Class_T                    String?
-  TNM_Class_N                    String?
-  TNM_Class_M                    String?
-  Tumour_Grade                   String?
-  Tumour_Stage                   String?
-  Viable_Cells__per_             String?
-  Necrotic_Cells__per_           String?
-  Tumour_Cells__per_             String?
-  Proliferation_Rate__Ki67_per_  String?
-  Estrogen_Receptor              String?
-  Progesteron_Receptor           String?
-  HER_2_Receptor                 String?
-  Other_Gene_Mutations           String?
-  Country_of_Collection          String?
-  Date_of_Collection             DateTime?
-  Procurement_Type               String?
-  Informed_Consent               String?
+  id                              String    @id @default(cuid())
+  Age                             Int?
+  BMI                             Int?
+  CBH_Donor_ID                    String?
+  CBH_Master_ID                   String?
+  CBH_Sample_ID                   String?
+  Country_of_Collection           String?
+  Cut_Off_Numerical               Float?
+  Cut_Off_Raw                     String?
+  Date_of_Collection              DateTime?
+  Diagnosis                       String?
+  Diagnosis_Remarks               String?
+  Disease_Presentation            String?
+  Estrogen_Receptor               String?
+  Ethnicity                       String?
+  Freeze_Thaw_Cycles              Int?
+  Gender                          String?
+  HER_2_Receptor                  String?
+  Histological_Diagnosis          String?
+  ICD_Code                        String?
+  Infectious_Disease_Test_Result  String?
+  Informed_Consent                String?
+  Lab_Parameter                   String?
+  Matrix                          String?
+  Medication                      String?
+  Necrotic_Cells__per_            String?
+  Organ                           String?
+  Other_Gene_Mutations            String?
+  Pregnancy_Trimester             String?
+  Pregnancy_Week                  Int?
+  Price                           Int?
+  Procurement_Type                String?
+  Progesteron_Receptor            String?
+  Proliferation_Rate__Ki67_per_   String?
+  Quantity                        Float?
+  Result_Interpretation           String?
+  Result_Numerical                Float?
+  Result_Obtained_From            String?
+  Result_Raw                      String?
+  Result_Unit                     String?
+  Sample_Condition                String?
+  Storage_Temperature             String?
+  TNM_Class_M                     String?
+  TNM_Class_N                     String?
+  TNM_Class_T                     String?
+  Test_System                     String?
+  Test_System_Manufacturer        String?
+  Therapy                         String?
+  Tumour_Cells__per_              String?
+  Tumour_Grade                    String?
+  Tumour_Stage                    String?
+  Unit                            String?
+  Viable_Cells__per_              String?
+  Test_Method                     String?
+}
+
+model Filter {
+  id              String @id @default(cuid())
+  name            String
+  type            String
+  filter          String
+  userId          String
+  user            User   @relation(fields: [userId], references: [id])
+  formatting      Boolean
+  activeColumns   String[]
+}
+
+model Bing {
+  id          String @id
+  Term        String
+  Impressions Int
+  Clicks      Int
+  Date        String
+}
+
+model Google {
+  id          String @id
+  Term        String
+  Impressions Int
+  Clicks      Int
+  Date        String
+}
+
+model Lead {
+  id                        String   @id
+  Lead_ID                   Int
+  Lead_Number               String
+  Lead_Status               String
+  Lead_Date                 DateTime
+  Organisation_ID           Int
+  Country_ID                Int
+  Channel                   Int
+  Field_of_Interest         String?
+  Specification_of_Interest String?
+  Parameter_of_Interest     String?
+  Diagnosis_of_Interest     String?
+  Matrix_of_Interest        String?
+  Quantity_of_Interest      String?
+}
+
+model Order {
+  id                       String   @id
+  Customer_ID              Int
+  Order_ID                 Int
+  Price                    Int
+  Order_Date               DateTime
+  Storage_Temperature      String?
+  CBH_Donor_ID             String
+  CBH_Sample_ID            String
+  Matrix                   String?
+  Supplier_ID              String?
+  Supplier_Sample_ID       String?
+  Product_ID               String?
+  Country_ID               String?
+  Quantity                 Float?
+  Unit                     String?
+  Age                      Int?
+  Gender                   String?
+  Ethnicity                String?
+  Lab_Parameter            String?
+  Result_Numerical         Float?
+  Result_Unit              String?
+  Result_Interpretation    String?
+  Test_Method              String?
+  Test_Kit_Manufacturer    String?
+  Test_System_Manufacturer String?
+  Diagnosis                String?
+  ICD_Code                 String?
+  Histological_Diagnosis   String?
+  Organ                    String?
+  Country_of_Collection    String?
+  Date_of_Collection       String?
 }
 
 // This is the model for the mapping of the sample ID

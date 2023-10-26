@@ -287,7 +287,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
       // Alert the user if no file is selected
       alert("No File selected");
     }
-  }  
+  }
 
   function mapColumns (): void {
     const objectsToCreate: Samples[] = [];
