@@ -57,4 +57,4 @@ export type TableSamples = {
     Informed_Consent?:                       string,
   }
 
-export const MappingsSchema = z.number().or(z.null()).array()
+export const MappingsSchema = z.number().array().or(z.null()).array()
