@@ -316,6 +316,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
         const monthAndYear = /\d{2}$-\d{4}$/;
         const monthAndYearSlashSeperated = /\d{2}$\/\d{4}$/;
         const monthAndYearDotSeperated = /\d{2}$\.\d{4}$/;
+        const weekday = /\d{3}\s\d{3}/;
   
         if (slashSeperated.test(dateValue)) {
           const [month, day, year] = dateValue.split("/");
@@ -374,9 +375,11 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
           const [month, year] = dateValue.split(".");
           return new Date(`${year ?? "2022"}-${month ?? "01"}-01T00:00:00`);
         }
+
+        return new Date(Date.parse(dateValue))
       }
 
-      return null;
+      return null
     }
 
     let tempDonorNumber = donorNumber
