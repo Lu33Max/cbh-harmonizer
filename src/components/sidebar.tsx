@@ -47,7 +47,7 @@ const Sidebar: React.FC<props> = ({mappings, setMapping}) => {
   return (
     <div className='min-w-[200px] max-w-[200px] bg-[#164A41] flex flex-col py-5 shadow-2xl shadow-black '>
         <div className='flex items-center justify-center h-[15%]'>
-            <Image src="/CBHLogo.png" alt='logo' width={160} height={160}/>
+            <Image src="/CBH_Logo_NoText.png" alt='logo' width={160} height={160}/>
         </div>
         <div className='h-[75%] flex flex-col items-start mt-20 py-5 px-5 text-2xl font-semibold text-white'>
           <button onClick={() => void router.push("/table")} className='my-2 hover:text-[#F1B24A] transition-all'>Table View</button>
