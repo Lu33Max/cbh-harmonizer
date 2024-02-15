@@ -13,21 +13,21 @@ const Footer: React.FC<props> = ({range, page, setPage}) => {
                 <>
                     {(el === 1) && (
                         <>
-                            <button key={index} className={`justify-center mx-1 rounded-full px-3 py-1 ${page === index + 1 ? 'bg-[#F1B24A] border-2 border-solid border-green-900 py-1 text-lg text-green-900' : 'border-2 border-solid border-green-900 bg-white hover:bg-[#fdc367a0] py-1 text-lg text-green-900'}`} onClick={() => setPage(el)}>{el}</button>
+                            <button key={index} className={`justify-center mx-1 rounded-xl px-3 py-1 ${page === index + 1 ? 'bg-[#F7D59B] border-2 border-solid border-[#164A41] py-1 px-3 text-lg text-[#164A41]' : 'border-2 border-solid border-[#164A41] bg-[#D8E9D1] hover:bg-[#f0d9b5a0] py-1 text-lg text-[#164A41]'}`} onClick={() => setPage(el)}>{el}</button>
                             {(page-3 > 1) && (
                                 <label key={0}>&nbsp;. . .&nbsp;</label>
                             )}
                         </>
                     )}
                     {(el >= page-2 && el <= page+2 && el !== 1 && el !== range.length) && (
-                        <button key={index} className={`justify-center mx-1 rounded-full px-3 py-1 ${page === index + 1 ? 'bg-[#F1B24A] border-2 border-solid border-green-900 py-1 text-lg text-green-900' : 'border-2 border-solid border-green-900 bg-white hover:bg-[#fdc367a0] py-1 text-lg text-green-900'}`} onClick={() => setPage(el)}>{el}</button>
+                        <button key={index} className={`justify-center mx-1 rounded-xl px-3 py-1 ${page === index + 1 ? 'bg-[#F7D59B] border-2 border-solid border-[#164A41] py-1 px-3 text-lg text-[#164A41]' : 'border-2 border-solid border-[#164A41] bg-[#D8E9D1] hover:bg-[#f0d9b5a0] py-1 text-lg text-[#164A41]'}`} onClick={() => setPage(el)}>{el}</button>
                     )}
                     {(el === range.length && range.length !== 1) && (
                         <>
                             {(page+4 < range.length) && (
                                 <label key={range.length+1}>&nbsp;. . .&nbsp;</label>
                             )}
-                            <button key={index} className={`justify-center mx-1 rounded-full px-3 py-1 ${page === index + 1 ? 'bg-[#F1B24A] border-2 border-solid border-green-900 py-1 text-lg text-green-900' : 'border-2 border-solid border-green-900 bg-white hover:bg-[#fdc367a0] py-1 text-lg text-green-900'}`} onClick={() => setPage(el)}>{el}</button>
+                            <button key={index} className={`justify-center mx-1 rounded-xl px-3 py-1 ${page === index + 1 ? 'bg-[#F7D59B] border-2 border-solid border-[#164A41] py-1 px-3 text-lg text-[#164A41]' : 'border-2 border-solid border-[#164A41] bg-[#D8E9D1] hover:bg-[#f0d9b5a0] py-1 text-lg text-[#164A41]'}`} onClick={() => setPage(el)}>{el}</button>
                         </>
                     )}
                 </>

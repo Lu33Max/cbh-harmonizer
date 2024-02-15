@@ -62,8 +62,8 @@ const ModalSave: React.FC<CustomModalProps> = ({ showModal, setShowModal , mappi
                             {/*content*/}
                             <div className="border-0 shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none rounded-2xl">
                                 {/*header*/}
-                                <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 bg-[#164A41] rounded-t-2xl">
-                                    <h3 className="text-3xl font-semibold w-full text-center">Save filter</h3>
+                                <div className="flex items-start justify-between p-5 border-b border-solid border-slate-200 bg-[#D8E9D1] rounded-t-2xl">
+                                    <h3 className="text-3xl font-semibold w-full text-center text-black">Save filter</h3>
                                 </div>
                                 {/*body*/}
                                 {sessionData?.user ? (
@@ -85,7 +85,7 @@ const ModalSave: React.FC<CustomModalProps> = ({ showModal, setShowModal , mappi
                                         Close
                                     </button>
                                     <button
-                                        className="bg-[#F1B24A] text-[#164A41] hover:bg-[#ffcd7c] font-bold uppercase text-base px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
+                                        className="bg-[#D8E9D1] text-black hover:bg-[#D8E9D1] font-bold uppercase text-base px-3 py-2 rounded shadow hover:shadow-lg outline-none focus:outline-none mr-1 mb-1 ease-linear transition-all duration-150"
                                         type="button"
                                         onClick={() => {mappingName !== "" ? onSubmit() : alert("Please enter a name")}}
                                     >

@@ -8,6 +8,7 @@ import Sidebar from "~/components/sidebar"
 import { api } from "~/utils/api"
 import { BiCog, BiDetail } from "react-icons/bi";
 import { Login } from "~/components/login"
+import Image from "next/image"
 
 export type TableSamples = {
     id:                                      string,
@@ -311,28 +312,30 @@ const Table: React.FC = () => {
 
         {settings && (
           <div className='my-3'>
-            <h1 className='text-2xl'>Settings</h1>
+            <h1 className='text-2xl text-[#164A41] text-center'><b>Settings</b></h1>
+            <div className="text-center">
             {Object.getOwnPropertyNames(tableSamples[0]).map((name, i) => {
                 if (name !== "id") {
                     return (
-                        <button key={i} onClick={() => showColumns(name)} className={`mx-1 my-1 rounded-lg p-2 ${activeColumns.find(c => c === name)? "bg-[#9DC88D]": "bg-gray-300"}`}>{name.replace(/_/g," ")}</button>
+                        <button key={i} onClick={() => showColumns(name)} className={`mx-2 my-1 rounded-2xl p-2 ${activeColumns.find(c => c === name)? "bg-[#D8E9D1]": "bg-gray-100 border-2 border-gray-300"}`}>{name.replace(/_/g," ")}</button>
                     )
                 }              
             })}
+            </div>
             <br/>
-            <button onClick={() => {setActiveColumns(defaultColumns); setTempColumns(defaultColumns)}} className='w-[10rem] px-4 py-1 text-lg text-center text-white rounded-2xl border-solid border-2 bg-orange-300 border-orange-300'>Reset</button>
+            <button onClick={() => {setActiveColumns(defaultColumns); setTempColumns(defaultColumns)}} className='w-[10rem] rounded-2xl border-2 border-solid border-orange-300 bg-orange-300 px-4 py-1 text-center text-lg text-white mb-2'>Reset</button>
           </div>
         )}
 
         <table className="w-full text-lg border-separate border-spacing-y-1 max-h-[50vh] overflow-y-auto">
             <thead>
-                <tr className="bg-[#9DC88D] text-[#164A41] font-bold">
+                <tr className="bg-[#D8E9D1] font-extralight">
                     {activeColumns.map((column, i) => {
                         return(
-                            <th key={i} className={`py-2 font-bold border-dotted border-black border-r-2 ${i === 0 ? "rounded-l-xl" : ""}`}><button onClick={() => {sortBy === "" ? setSortBy(column): setSortBy(""); handleSort(column as SampleKey)}}>{column.replace(/_/g," ")}</button></th>
+                            <th key={i} className={`py-2 font-extralight border-dotted border-black border-r-2 ${i === 0 ? "rounded-l-xl" : ""}`}><button onClick={() => {sortBy === "" ? setSortBy(column): setSortBy(""); handleSort(column as SampleKey)}}>{column.replace(/_/g," ")}</button></th>
                         )
                     })}
-                    <th className="py-2 font-bold rounded-r-xl">Details</th>
+                    <th className="py-2 font-extralight rounded-r-xl">Details</th>
                 </tr>
             </thead>
             <tbody>
@@ -341,13 +344,13 @@ const Table: React.FC = () => {
                         <tr key={index} className="text-center">
                             {activeColumns.map((column, i) => {
                                 return (
-                                    <td key={i} className={`py-2 px-3 bg-[#E6E6E6] ${i === 0 ? "rounded-l-xl" : ""}`}>{getProperty(sample, column as SampleKey)?.toString()}</td>
+                                    <td key={i} className={`py-2 px-3  bg-gray-200 ${i === 0 ? "rounded-l-xl" : ""}`}>{getProperty(sample, column as SampleKey)?.toString()}</td>
                                 )
                             })}
-                             <td className="py-2 px-3 bg-[#E6E6E6] rounded-r-xl"><button onClick={() => { updateState(index) }}><BiDetail className="relative top-1" /></button></td>
+                             <td className="py-2 px-3 bg-gray-200 rounded-r-xl "><button onClick={() => { updateState(index) }}><img src="info_1.png" alt="details" className="relative top-1" width={20} height={20}  /></button></td>
                         </tr>
                         <tr className={`mx-5 ${show[index] ? "" : "hidden"} bg-[#E6E6E6]`}>
-                            <td colSpan={2} className="px-5 bg-[#E6E6E6]">
+                            <td colSpan={2} className="px-5 bg-[#D8E9D1]">
                                 <div className="grid grid-cols-2">
                                     <strong className="col-span-2">General Data</strong>
                                     <span>CBH Master ID:</span> {sample.CBH_Master_ID ?? "NaN"}
@@ -367,8 +370,8 @@ const Table: React.FC = () => {
                                     <span>Procurement Type:</span> {sample.Procurement_Type ?? "NaN"}
                                 </div>
                             </td>
-                            <td className="border-l-2 border-solid border-gray-300 px-2" colSpan={2}>
-                                <div className="grid grid-cols-2">
+                            <td className="border-l-2 border-solid border-gray-300 px-2 bg-[#D8E9D1]" colSpan={2}>
+                                <div className="grid grid-cols-2 ">
                                 <strong className="col-span-2">Laboratory</strong>
                                     <span>Lab Parameter</span> {(sample.Lab_Parameter && sample.Lab_Parameter.length > 0) ? sample.Lab_Parameter.join(", "): "NaN"}
                                     <span>Result Raw:</span> {(sample.Result_Raw && sample.Result_Raw.length > 0) ? sample.Result_Raw.join(", "): "NaN"}

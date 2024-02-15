@@ -770,13 +770,13 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
         </p>
         <div className="flex flex-row items-center gap-10 ml-36 mt-3 justify-stretch">
           <div className="flex flex-row gap-3 items-center min-w-[40%]">
-            <input type="file" accept=".xlsx,.csv" onChange={(e) => setInput(e.target.files !== null ? e.target.files[0] : undefined)} className="relative m-0 block min-w-10 flex-auto rounded-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.2rem] font-bold text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-[#617e5766] focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-gray-400 dark:file:bg-[#9DC88D66] dark:file:text-[#164A41] dark:focus:border-primary"/>
+            <input type="file" accept=".xlsx,.csv" onChange={(e) => setInput(e.target.files !== null ? e.target.files[0] : undefined)} className="relative m-0 block min-w-10 flex-auto rounded-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.2rem] font-bold text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.32rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-[#c0e0b4] focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-gray-400 dark:file:bg-[#9DC88D66] dark:file:text-[#164A41] dark:focus:border-primary"/>
           </div>
           <div className={`flex flex-row items-center ${input?.name.endsWith(".xlsx") ? "text-[#164A41]" : "text-gray-400"}`}>
-            <label className="bg-[#9DC88D66] hover:bg-[#617e5766] py-[0.2rem] text-[#164A41] px-3 rounded-l-xl font-bold whitespace-nowrap border border-solid dark:border-neutral-600">Starting row</label>
+            <label className="bg-[#9DC88D66] hover:bg-[#c0e0b4] py-[0.2rem] text-[#164A41] px-3 rounded-l-xl font-bold whitespace-nowrap border border-solid dark:border-neutral-600">Starting row</label>
             <input type="number" disabled={input?.name.endsWith(".xlsx") ? false : true} onChange={(e) => setStartRow(Number(e.target.value) ?? 1)} className="relative min-w-0 m-0 block min-w-10 flex-auto rounded-r-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.2rem] font-bold text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.2rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-500 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-500 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary" placeholder="Starting row"></input>
           </div>
-          <button onClick={readFile} className="bg-[#F1B24A] hover:bg-[#fdc367a0] transition duration-300 ease-in-out px-15 py-1 w-full text-[#164A41] rounded-xl font-bold">Read File</button>
+          <button onClick={readFile} className="bg-[#D8E9D1] hover:bg-[#aec9a4] transition duration-300 ease-in-out px-15 py-1 w-full text-[#164A41] rounded-xl font-bold">Read File</button>
         </div>
         
         {/* Phase 2 */}
@@ -805,7 +805,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
 
           <div className=" ml-10 flex flex-row justify-center gap-20">
             <div className="flex flex-row ">
-              <label className="bg-[#9DC88D66] hover:bg-[#617e5766] py-[0.2rem] text-[#164A41] px-3 rounded-l-xl font-bold whitespace-nowrap border border-solid dark:border-neutral-600">Search</label>
+              <label className="bg-[#9DC88D66] hover:bg-[#c0e0b4] py-[0.2rem] text-[#164A41] px-3 rounded-l-xl font-bold whitespace-nowrap border border-solid dark:border-neutral-600">Search</label>
               <input className="relative min-w-0 m-0 block min-w-10 flex-auto rounded-r-xl border border-solid border-neutral-300 bg-clip-padding px-3 py-[0.2rem] text-base font-bold text-neutral-700 transition duration-300 ease-in-out file:-mx-3 file:-my-[0.32rem] file:overflow-hidden file:rounded-none file:border-0 file:border-solid file:border-inherit file:bg-neutral-600 file:px-3 file:py-[0.2rem] file:text-neutral-700 file:transition file:duration-150 file:ease-in-out file:[border-inline-end-width:1px] file:[margin-inline-end:0.75rem] hover:file:bg-neutral-500 focus:border-primary focus:text-neutral-700 focus:shadow-te-primary focus:outline-none dark:border-neutral-600 dark:text-neutral-500 dark:file:bg-neutral-700 dark:file:text-neutral-100 dark:focus:border-primary" value={search} onChange={(e) => setSearch(e.target.value)}></input>
             </div>
           </div>
@@ -816,8 +816,8 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
               <table>
                 <thead>
                   <tr className="text-white">
-                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tl-xl">Database Column</th>
-                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tr-xl">Input Column</th>
+                    <th className="w-[12vw] font-light text-black bg-[#D8E9D1] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light text-black bg-[#D8E9D1] py-1 rounded-tr-xl">Input Column</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -857,8 +857,8 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
               <table>
                 <thead>
                   <tr className="text-white">
-                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tl-xl">Database Column</th>
-                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tr-xl">Input Column</th>
+                    <th className="w-[12vw] font-light text-black bg-[#D8E9D1] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light text-black bg-[#D8E9D1] py-1 rounded-tr-xl">Input Column</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -898,8 +898,8 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
               <table>
                 <thead>
                   <tr className="text-white">
-                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tl-xl">Database Column</th>
-                    <th className="w-[12vw] font-light bg-[#164A41] py-1 rounded-tr-xl">Input Column</th>
+                    <th className="w-[12vw] font-light text-black bg-[#D8E9D1] py-1 rounded-tl-xl">Database Column</th>
+                    <th className="w-[12vw] font-light text-black bg-[#D8E9D1] py-1 rounded-tr-xl">Input Column</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -941,7 +941,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
           </div>
         </div>
         <div className="flex flex-row w-full justify-center font-bold">
-          <button className="bg-[#F1B24A] hover:bg-[#fdc367a0] w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-[#164A41] rounded-xl" onClick={mapColumns}>Apply Mappings</button>
+          <button className="bg-[#D8E9D1] hover:bg-[#c0e0b4] w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-[#164A41] rounded-xl" onClick={mapColumns}>Apply Mappings</button>
         </div>
 
         {/* Phase 3 */}
@@ -968,7 +968,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
                 {Object.getOwnPropertyNames(SampleSchema.shape).map((name,i) => {
                   if(i > 0){
                     return(
-                      <th key={2000 + i} className={`bg-[#164A41] whitespace-nowrap font-extralight text-white px-4 py-2 ${i === 1 ? "rounded-tl-xl" : i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "rounded-tr-xl" : ""}`}>{name.replaceAll("_"," ")}</th>
+                      <th key={2000 + i} className={`bg-[#D8E9D1] whitespace-nowrap font-extralight text-black px-4 py-2 ${i === 1 ? "rounded-tl-xl" : i === Object.getOwnPropertyNames(SampleSchema.shape).length -1 ? "rounded-tr-xl" : ""}`}>{name.replaceAll("_"," ")}</th>
                     )
                   }
                 })}
@@ -995,7 +995,7 @@ const Import: React.FC<props> = ({mappings, setMappings, delimiters, setDelimite
           </div>
         </div>
         <div className="flex flex-row w-full justify-center font-bold">
-          <button className="bg-[#F1B24A] hover:bg-[#fdc367a0] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-[#164A41] rounded-xl" onClick={onSubmit}>Submit</button>
+          <button className="bg-[#D8E9D1] hover:bg-[#c0e0b4] mt-3 w-fit transition duration-300 ease-in-out ml-36 px-10 py-1 text-[#164A41] rounded-xl" onClick={onSubmit}>Submit</button>
         </div>
 
         {errorSamples.length > 0 && (
