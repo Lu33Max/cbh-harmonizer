@@ -162,7 +162,7 @@ This command will download and install all the required libraries and dependenci
 npm run dev
 ```
 
-8. Access the project: After starting the project, open your web browser and navigate to the URL provided by the project, which is [http://localhost:3000].
+7. Access the project: After starting the project, open your web browser and navigate to the URL provided by the project, which is [http://localhost:3000].
 
 ## File Overview
 
