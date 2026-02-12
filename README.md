@@ -1,5 +1,9 @@
 # Documentation
 
+## The project
+
+This project was realized by group of Media Informatics students at the University of Applied Sciences Mittweida as part of the four semester long "Sciences & Economics" module. The goal was to create a web-based application capable of allowing users to map incoming supplier product data sheets to the company's own internal data structure. The tool was realized using the T3 Tech Stack based on Next.js, Typescript, TailwindCSS, Prisma ORM, tRPC and NextAuth.****
+
 ## List of used Libraries
 
 **State Management and Data Fetching:**
